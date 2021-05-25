@@ -6,11 +6,11 @@ const SavedState = require('../models/SavedState');
 // @route POST api/savedState
 // @desc Save state
 router.post('/', async (req, res) => {
-  const { state } = req.body;
+  const { walls } = req.body;
 
   try {
     let savedState = new SavedState({
-      state,
+      walls,
     });
     let id = savedState._id;
 
@@ -24,6 +24,20 @@ router.post('/', async (req, res) => {
 
 // @route GET api/savedState
 // @desc load state
+// router.get('/', async (req, res) => {
+//   try {
+//     const state = await SavedState.findById(req.body._id);
+
+//     if (!state) {
+//       return res.status(404).json({ msg: 'Save not found' });
+//     }
+
+//     res.json(state);
+//   } catch (err) {
+//     console.error(err.message);
+//     res.status(500).send('Server Error');
+//   }
+// });
 router.get('/:id', async (req, res) => {
   try {
     const state = await SavedState.findById(req.params.id);
@@ -32,23 +46,11 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ msg: 'Save not found' });
     }
 
-    res.json(state.state);
+    res.json(state);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
   }
-});
-
-// @route PUT api/savedState
-// @desc load state
-router.put('/:id', (req, res) => {
-  res.send('Updated state');
-});
-
-// @route DELETE api/savedState
-// @desc delete state
-router.delete('/:id', (req, res) => {
-  res.send('deleted state');
 });
 
 module.exports = router;
