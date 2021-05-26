@@ -9,8 +9,9 @@ const stageHeight = 3000;
 
 const MyStage = () => {
   const stageContext = useContext(StageContext);
-  const { action, walls, setWalls, isStageVisable } = stageContext;
-  //const [stagePosition, setStagePosition] = useState({ x: 0, y: 0 });
+  const { action, walls, setWalls, isStageVisable, scale, setScale } =
+    stageContext;
+  const [stagePosition, setStagePosition] = useState({ x: 0, y: 0 });
   const [isDrawing, setIsDrawing] = useState(false);
 
   // const startX =
@@ -114,11 +115,32 @@ const MyStage = () => {
     setIsDrawing(false);
   };
 
+  const onWheelHandler = event => {
+    event.evt.preventDefault();
+
+    const scaleBy = 1.02;
+    const stage = event.target.getStage();
+    const oldScale = stage.scaleX();
+    const mousePointTo = {
+      x: stage.getPointerPosition().x / oldScale - stage.x() / oldScale,
+      y: stage.getPointerPosition().y / oldScale - stage.y() / oldScale,
+    };
+
+    const newScale =
+      event.evt.deltaY < 0 ? oldScale * scaleBy : oldScale / scaleBy;
+
+    setScale(newScale);
+    setStagePosition({
+      x: (stage.getPointerPosition().x / newScale - mousePointTo.x) * newScale,
+      y: (stage.getPointerPosition().y / newScale - mousePointTo.y) * newScale,
+    });
+  };
+
   return (
     <div>
       <Stage
-        // x={stagePosition.x}
-        // y={stagePosition.y}
+        x={stagePosition.x}
+        y={stagePosition.y}
         visible={isStageVisable}
         width={stageWidth}
         height={stageHeight}
@@ -127,15 +149,10 @@ const MyStage = () => {
         onMouseUp={onMouseUpHandler}
         style={{ backgroundColor: '#f2eee5' }}
         draggable={action === 'SELECT' ? true : false}
-        // onDragEnd={e => {
-        //   console.log(e.currentTarget.getPosition());
-        //   console.log(e.currentTarget.getRelativePointerPosition());
-        //   setStagePosition(e.currentTarget.position());
-        //   console.log(e.currentTarget.getPosition());
-        //   console.log(e.currentTarget.getRelativePointerPosition());
-        // }}
+        onWheel={onWheelHandler}
+        scaleX={scale}
+        scaleY={scale}
       >
-        {/* <Layer>{gridComponents}</Layer> */}
         <Layer>
           {walls.map((wall, i) => (
             <Line

@@ -9,7 +9,7 @@ import Backdrop from './Backdrop';
 const Header = () => {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const stageContext = useContext(StageContext);
-  const { walls, setWalls, setIsStageVisable, isStageVisable } = stageContext;
+  const { walls, setWalls, setIsStageVisable, setScale } = stageContext;
   const [savedStateId, setSavedStateId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
@@ -53,6 +53,10 @@ const Header = () => {
     setWalls([]);
   };
 
+  const resetScaleHandler = () => {
+    setScale(1);
+  };
+
   return (
     <header className={classes.header}>
       <button className={classes.button} onClick={setSelectAction}>
@@ -69,6 +73,9 @@ const Header = () => {
       </button>
       <button className={classes.button} onClick={clearStateHandler}>
         Clear project
+      </button>
+      <button className={classes.button} onClick={resetScaleHandler}>
+        Reset zoom
       </button>
       {isSaveModalOpen && (
         <SaveModal
