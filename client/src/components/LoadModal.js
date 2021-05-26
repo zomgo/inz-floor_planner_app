@@ -19,9 +19,9 @@ const LoadModal = props => {
     const enteredId = idInputRef.current.value;
     if (!mongoose.Types.ObjectId.isValid(enteredId)) {
       setIsIdValid(false);
-
       return;
     }
+
     setIsIdValid(true);
     try {
       const res = await axios.get(

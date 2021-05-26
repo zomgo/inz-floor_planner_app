@@ -3,24 +3,58 @@ import { Stage, Layer, Line } from 'react-konva';
 import { useContext } from 'react';
 import StageContext from '../store/stage-context';
 
+//const SIZE = 100;
+const stageWidth = 3000;
+const stageHeight = 3000;
+
 const MyStage = () => {
   const stageContext = useContext(StageContext);
-  const { action, walls, setWalls } = stageContext;
-  // const [stagePos, setStagePos] = useState({ x: 0, y: 0 });
+  const { action, walls, setWalls, isStageVisable } = stageContext;
+  //const [stagePosition, setStagePosition] = useState({ x: 0, y: 0 });
   const [isDrawing, setIsDrawing] = useState(false);
 
-  const stageWidth = 700;
-  const stageHeight = 700;
+  // const startX =
+  //   Math.floor((-stagePosition.x - window.innerWidth) / SIZE) * SIZE;
+  // const endX =
+  //   Math.floor((-stagePosition.x + window.innerWidth * 2) / SIZE) * SIZE;
+
+  // const startY =
+  //   Math.floor((-stagePosition.y - window.innerHeight) / SIZE) * SIZE;
+  // const endY =
+  //   Math.floor((-stagePosition.y + window.innerHeight * 2) / SIZE) * SIZE;
+
+  // const gridComponents = [];
+  // var i = 0;
+  // for (var x = startX; x < endX; x += SIZE) {
+  //   for (var y = startY; y < endY; y += SIZE) {
+  //     if (i === 4) {
+  //       i = 0;
+  //     }
+
+  //     // const indexX = Math.abs(x / SIZE) % grid.length;
+  //     // const indexY = Math.abs(y / SIZE) % grid[0].length;
+
+  //     gridComponents.push(
+  //       <Rect x={x} y={y} width={SIZE} height={SIZE} stroke='black' />
+  //     );
+  //   }
+  // }
 
   function calculateAngleDegrees(x1, y1, x2, y2) {
     return (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI;
   }
 
   const onMouseDownHandler = event => {
+    if (action === 'SELECT') {
+      const stage = event.target.getStage();
+      const pointerPosition = stage.getPointerPosition();
+      console.log(pointerPosition);
+      console.log(stage.getRelativePointerPosition());
+    }
     if (action === 'WALL') {
       setIsDrawing(true);
       const stage = event.target.getStage();
-      const pointerPosition = stage.getPointerPosition();
+      const pointerPosition = stage.getRelativePointerPosition();
 
       setWalls([
         ...walls,
@@ -39,7 +73,7 @@ const MyStage = () => {
       return;
     }
     const stage = event.target.getStage();
-    const point = stage.getPointerPosition();
+    const point = stage.getRelativePointerPosition();
     let currentWall = walls[walls.length - 1];
     const degreeBetweenStartAndEnd = Math.abs(
       calculateAngleDegrees(
@@ -83,17 +117,25 @@ const MyStage = () => {
   return (
     <div>
       <Stage
+        // x={stagePosition.x}
+        // y={stagePosition.y}
+        visible={isStageVisable}
         width={stageWidth}
         height={stageHeight}
         onMouseDown={onMouseDownHandler}
         onMouseMove={onMouseMoveHandler}
         onMouseUp={onMouseUpHandler}
-        // draggable
+        style={{ backgroundColor: '#f2eee5' }}
+        draggable={action === 'SELECT' ? true : false}
         // onDragEnd={e => {
-        //   setStagePos(e.currentTarget.position());
-        //   console.log(stagePos.x, 0);
+        //   console.log(e.currentTarget.getPosition());
+        //   console.log(e.currentTarget.getRelativePointerPosition());
+        //   setStagePosition(e.currentTarget.position());
+        //   console.log(e.currentTarget.getPosition());
+        //   console.log(e.currentTarget.getRelativePointerPosition());
         // }}
       >
+        {/* <Layer>{gridComponents}</Layer> */}
         <Layer>
           {walls.map((wall, i) => (
             <Line

@@ -24,20 +24,6 @@ router.post('/', async (req, res) => {
 
 // @route GET api/savedState
 // @desc load state
-// router.get('/', async (req, res) => {
-//   try {
-//     const state = await SavedState.findById(req.body._id);
-
-//     if (!state) {
-//       return res.status(404).json({ msg: 'Save not found' });
-//     }
-
-//     res.json(state);
-//   } catch (err) {
-//     console.error(err.message);
-//     res.status(500).send('Server Error');
-//   }
-// });
 router.get('/:id', async (req, res) => {
   try {
     const state = await SavedState.findById(req.params.id);
