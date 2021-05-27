@@ -5,6 +5,8 @@ const StageContext = createContext({
   walls: [],
   isStageVisable: true,
   scale: 1,
+  history: [],
+  setHistory: state => {},
   setAction: action => {},
   setWalls: currentWall => {},
   setIsStageVisable: value => {},
@@ -16,6 +18,7 @@ export function StageContextProvider(props) {
   const [walls, setWalls] = useState([]);
   const [isStageVisable, setIsStageVisable] = useState(true);
   const [scale, setScale] = useState(1);
+  const [history, setHistory] = useState([]);
 
   function setActionHandler(action) {
     setAction(action);
@@ -33,11 +36,17 @@ export function StageContextProvider(props) {
     setScale(scale);
   };
 
+  const setHistoryHandler = state => {
+    setHistory(state);
+  };
+
   const context = {
     action: action,
     walls: walls,
     isStageVisable: isStageVisable,
     scale: scale,
+    history: history,
+    setHistory: setHistoryHandler,
     setScale: setScaleHandler,
     setWalls: setWallsHandler,
     setAction: setActionHandler,

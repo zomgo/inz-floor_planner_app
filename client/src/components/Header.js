@@ -9,14 +9,15 @@ import Backdrop from './Backdrop';
 const Header = () => {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const stageContext = useContext(StageContext);
-  const { walls, setWalls, setIsStageVisable, setScale } = stageContext;
+  const { walls, setWalls, setIsStageVisable, setScale, history, setHistory } =
+    stageContext;
   const [savedStateId, setSavedStateId] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  //const [isLoading, setIsLoading] = useState(false);
   const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
 
   const saveStateHandler = async () => {
     setIsStageVisable(false);
-    setIsLoading(true);
+    // setIsLoading(true);
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -26,7 +27,7 @@ const Header = () => {
     try {
       const res = await axios.post('/api/savedState', data, config);
       setIsSaveModalOpen(true);
-      setIsLoading(false);
+      //  setIsLoading(false);
       setSavedStateId(res.data);
     } catch (err) {}
   };
@@ -57,26 +58,45 @@ const Header = () => {
     setScale(1);
   };
 
+  const undoHandler = () => {
+    setHistory(walls);
+    setWalls(walls.slice(0, walls.length - 1));
+  };
+
+  const redoHandler = () => {
+    if (history.length === 0) return;
+    setWalls(history);
+  };
+
   return (
     <header className={classes.header}>
-      <button className={classes.button} onClick={setSelectAction}>
-        Select
-      </button>
-      <button className={classes.button} onClick={setDrawWallAction}>
-        Draw Wall
-      </button>
-      <button className={classes.button} onClick={saveStateHandler}>
-        Save
-      </button>
-      <button className={classes.button} onClick={loadStateHandler}>
-        Load
-      </button>
-      <button className={classes.button} onClick={clearStateHandler}>
-        Clear project
-      </button>
-      <button className={classes.button} onClick={resetScaleHandler}>
-        Reset zoom
-      </button>
+      <h1 className={classes.h1}>Floor planner</h1>
+      <ul>
+        <button className={classes.button} onClick={setSelectAction}>
+          Select
+        </button>
+        <button className={classes.button} onClick={setDrawWallAction}>
+          Draw Wall
+        </button>
+        <button className={classes.button} onClick={saveStateHandler}>
+          Save
+        </button>
+        <button className={classes.button} onClick={loadStateHandler}>
+          Load
+        </button>
+        <button className={classes.button} onClick={clearStateHandler}>
+          Clear project
+        </button>
+        <button className={classes.button} onClick={resetScaleHandler}>
+          Reset zoom
+        </button>
+        <button className={classes.button} onClick={undoHandler}>
+          Undo
+        </button>
+        <button className={classes.button} onClick={redoHandler}>
+          Redo
+        </button>
+      </ul>
       {isSaveModalOpen && (
         <SaveModal
           text='Kod projektu:'

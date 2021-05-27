@@ -27,7 +27,6 @@ const LoadModal = props => {
       const res = await axios.get(
         `/api/savedState/${idInputRef.current.value}`
       );
-      console.log(res.data.walls);
       setWalls(res.data.walls);
       props.onCancel();
     } catch (err) {

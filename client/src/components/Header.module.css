@@ -1,25 +1,30 @@
 .header {
-  color: rgb(0, 0, 0);
+  color: #d2e6e7;
+  background-color: #292929;
   display: flex;
-  justify-content: left;
+  justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 1.5rem;
+  padding: 0.3rem 0.3rem;
   z-index: 1;
-  border-bottom: solid 1px rgb(0, 0, 0);
   opacity: 0.9;
-  margin-bottom: 1rem;
+}
+
+.h1 {
+  color: #d2e6e7;
+  margin-left: 1rem;
+  font-size: larger;
 }
 
 .button {
   display: inline-block;
-  background: rgb(61, 35, 211);
-  color: rgb(236, 236, 236);
+  background: #268386;
+  color: #d2e6e7;
   padding: 0.4rem 1.3rem;
   font-size: 1rem;
   border: none;
   cursor: pointer;
   margin-right: 0.5rem;
-  transition: opacity 0.2s ease-in;
+  transition: opacity 0.3s ease-in;
   outline: none;
 }
 
