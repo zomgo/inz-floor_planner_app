@@ -2,14 +2,20 @@ import React, { useState } from 'react';
 import { Stage, Layer, Line } from 'react-konva';
 import { useContext } from 'react';
 import StageContext from '../store/stage-context';
-import { findClosestEndPoint, calculateAngleDegrees } from '../functions.js';
+import {
+  findClosestEndPoint,
+  calculateDegreeBetweenPoints,
+} from '../functions.js';
 //import classes from './MyStage.module.css';
 
 //const SIZE = 100;
 const stageWidth = 2000;
 const stageHeight = 2000;
-const DELTA = 30;
+const onMouseDownSnapDistance = 30;
 const wallWidth = 10;
+const zoomScaleBy = 1.04;
+const zoomLimitUp = 2;
+const zoomLimitDown = 0.4;
 
 const MyStage = () => {
   const stageContext = useContext(StageContext);
@@ -21,9 +27,10 @@ const MyStage = () => {
   const onWheelHandler = event => {
     event.evt.preventDefault();
 
-    const scaleBy = 1.02;
     const stage = event.target.getStage();
     const oldScale = stage.scaleX();
+    const scaleBy = zoomScaleBy;
+
     const mousePointTo = {
       x: stage.getPointerPosition().x / oldScale - stage.x() / oldScale,
       y: stage.getPointerPosition().y / oldScale - stage.y() / oldScale,
@@ -31,6 +38,8 @@ const MyStage = () => {
 
     const newScale =
       event.evt.deltaY < 0 ? oldScale * scaleBy : oldScale / scaleBy;
+
+    if (newScale > zoomLimitUp || newScale < zoomLimitDown) return;
 
     setScale(newScale);
     setStagePosition({
@@ -74,8 +83,8 @@ const MyStage = () => {
       const pointerPosition = stage.getRelativePointerPosition();
       if (walls.length > 0) {
         const closestEndPoint = findClosestEndPoint(pointerPosition, walls);
-        if (closestEndPoint.distance < DELTA) {
-          const angle = calculateAngleDegrees(
+        if (closestEndPoint.distance < onMouseDownSnapDistance) {
+          const angle = calculateDegreeBetweenPoints(
             closestEndPoint.x,
             closestEndPoint.y,
             closestEndPoint.endX,
@@ -125,7 +134,7 @@ const MyStage = () => {
     const point = stage.getRelativePointerPosition();
     let currentWall = walls[walls.length - 1];
     const degreeBetweenStartAndEnd = Math.abs(
-      calculateAngleDegrees(
+      calculateDegreeBetweenPoints(
         currentWall.startPointX,
         currentWall.startPointY,
         point.x,
@@ -199,6 +208,22 @@ const MyStage = () => {
                 wall.endPointY,
               ]}
               stroke='#5c5c5c'
+              strokeWidth={wallWidth}
+              //draggable={action === 'SELECT' ? true : false}
+            />
+          ))}
+          {walls.map((wall, i) => (
+            <Line
+              key={i}
+              points={[
+                wall.startPointX,
+                wall.startPointY,
+                wall.endPointX,
+                wall.endPointY,
+              ]}
+              opacity={0.2}
+              draggable
+              stroke='red'
               strokeWidth={wallWidth}
               //draggable={action === 'SELECT' ? true : false}
             />
