@@ -5,6 +5,7 @@ import StageContext from '../store/stage-context';
 import {
   findClosestEndPoint,
   calculateDegreeBetweenPoints,
+  findClosestWall,
 } from '../functions.js';
 //import classes from './MyStage.module.css';
 
@@ -78,13 +79,10 @@ const MyStage = () => {
   //   }
   // }
   const onMouseDownHandler = event => {
-    console.log(event.currentTarget.getRelativePointerPosition());
-
     setIsDrawing(true);
     const stage = event.target.getStage();
     const pointerPosition = stage.getRelativePointerPosition();
-    const point = { x: pointerPosition.x, y: pointerPosition.y };
-    //console.log(findClosestEndPoint(point, walls));
+    console.log(findClosestWall(pointerPosition, walls));
     if (action === 'WALL') {
       if (walls.length > 0) {
         const closestEndPoint = findClosestEndPoint(pointerPosition, walls);
@@ -203,8 +201,32 @@ const MyStage = () => {
       currentWall.endPointY = Math.round(point.y);
       currentWall.startPointX = Math.round(point.x) - windowWidth / 2;
       currentWall.startPointY = Math.round(point.y);
-      const closestEndPoint = findClosestEndPoint(point, walls);
-      console.log(closestEndPoint);
+      let closestEndPoint = findClosestWall(point, walls);
+
+      if (event.target.getClassName() === Line) {
+        closestEndPoint.x = event.target.getPoints()[0];
+        closestEndPoint.y = event.target.getPoints()[1];
+        closestEndPoint.endPointX = event.target.getPoints()[2];
+        closestEndPoint.endPointY = event.target.getPoints()[3];
+      }
+      currentWall.endPointY = closestEndPoint.y;
+      currentWall.startPointY = closestEndPoint.y;
+
+      if (
+        Math.abs(
+          calculateDegreeBetweenPoints(
+            closestEndPoint.x,
+            closestEndPoint.y,
+            closestEndPoint.endX,
+            closestEndPoint.endY
+          )
+        ) === 90
+      ) {
+        currentWall.startPointX = closestEndPoint.x;
+        currentWall.endPointX = closestEndPoint.x;
+        currentWall.startPointY = point.y + windowWidth / 2;
+        currentWall.endPointY = point.y - windowWidth / 2;
+      }
 
       walls.splice(walls.length - 1, 1, currentWall);
       setWalls(walls.concat());
@@ -266,8 +288,8 @@ const MyStage = () => {
         onMouseMove={onMouseMoveHandler}
         onMouseUp={onMouseUpHandler}
         style={{ backgroundColor: '#f2eee5' }}
-        // draggable={action === 'SELECT' ? true : false}
-        // onDragEnd={e => setStagePosition(e.currentTarget.position())}
+        draggable={action === 'SELECT' ? true : false}
+        onDragEnd={e => setStagePosition(e.currentTarget.position())}
         onWheel={onWheelHandler}
         scaleX={scale}
         scaleY={scale}
@@ -303,7 +325,7 @@ const MyStage = () => {
                     wall.endPointX,
                     wall.endPointY,
                   ]}
-                  opacity={1}
+                  opacity={0.9}
                   //onDragEnd={onDragEndHandler}
                   // draggable={action === 'SELECT' ? true : false}
                   stroke='red'

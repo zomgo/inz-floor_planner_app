@@ -4,7 +4,7 @@ export const calculateDegreeBetweenPoints = (x1, y1, x2, y2) => {
 
 export const findClosestEndPoint = (point, walls) => {
   if (walls.length === 0) {
-    return 'Second argument cant be empty';
+    return;
   }
   let res = walls
     .filter(wall => wall.type === 'WALL')
@@ -67,4 +67,35 @@ export const findClosestEndPoint = (point, walls) => {
         endY: aaa.startPointY,
       };
   return closestPoint;
+};
+
+export const findClosestWall = (point, walls) => {
+  if (walls.length === 0) {
+    return 'Second argument cant be empty';
+  }
+  let res = walls
+    .filter(wall => wall.type === 'WALL')
+    .map(wall => {
+      return {
+        middleX: (wall.startPointX + wall.endPointX) / 2,
+        middleY: (wall.startPointY + wall.endPointY) / 2,
+        x: wall.startPointX,
+        y: wall.startPointY,
+        endX: wall.endPointX,
+        endY: wall.endPointY,
+      };
+    })
+    .map(wall => {
+      return {
+        distance: Math.sqrt(
+          Math.pow(wall.middleX - point.x, 2) +
+            Math.pow(wall.middleY - point.y, 2)
+        ),
+        ...wall,
+      };
+    })
+    .reduce((prev, curr) => {
+      return prev.distance < curr.distance ? prev : curr;
+    });
+  return res;
 };
