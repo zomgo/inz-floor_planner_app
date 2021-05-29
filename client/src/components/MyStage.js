@@ -18,10 +18,11 @@ const zoomScaleBy = 1.04;
 const zoomLimitUp = 2;
 const zoomLimitDown = 0.3;
 const windowWidth = 114;
+const doorWidth = 80;
 
 const MyStage = () => {
   const stageContext = useContext(StageContext);
-  const { action, walls, setWalls, isStageVisable, scale, setScale } =
+  const { action, objects, setObjects, isStageVisable, scale, setScale } =
     stageContext;
   const [stagePosition, setStagePosition] = useState({ x: 0, y: 0 });
   const [isDrawing, setIsDrawing] = useState(false);
@@ -82,11 +83,9 @@ const MyStage = () => {
     setIsDrawing(true);
     const stage = event.target.getStage();
     const pointerPosition = stage.getRelativePointerPosition();
-    console.log(findClosestWall(pointerPosition, walls));
     if (action === 'WALL') {
-      if (walls.length > 0) {
-        const closestEndPoint = findClosestEndPoint(pointerPosition, walls);
-        console.log(closestEndPoint);
+      if (objects.length > 0) {
+        const closestEndPoint = findClosestEndPoint(pointerPosition, objects);
         if (closestEndPoint.distance < onMouseDownSnapDistance) {
           const angle = Math.round(
             calculateDegreeBetweenPoints(
@@ -96,8 +95,8 @@ const MyStage = () => {
               closestEndPoint.endY
             )
           );
-          setWalls([
-            ...walls,
+          setObjects([
+            ...objects,
             {
               startPointX: Math.round(
                 angle === 180
@@ -121,8 +120,8 @@ const MyStage = () => {
           return;
         }
       }
-      setWalls([
-        ...walls,
+      setObjects([
+        ...objects,
         {
           startPointX: Math.round(pointerPosition.x),
           startPointY: Math.round(pointerPosition.y),
@@ -133,12 +132,24 @@ const MyStage = () => {
       ]);
     }
     if (action === 'WINDOW') {
-      setWalls([
-        ...walls,
+      setObjects([
+        ...objects,
         {
           startPointX: Math.round(pointerPosition.x) - windowWidth / 2,
           startPointY: Math.round(pointerPosition.y),
           endPointX: Math.round(pointerPosition.x) + windowWidth / 2,
+          endPointY: Math.round(pointerPosition.y),
+          type: action,
+        },
+      ]);
+    }
+    if (action === 'DOOR') {
+      setObjects([
+        ...objects,
+        {
+          startPointX: Math.round(pointerPosition.x) - doorWidth / 2,
+          startPointY: Math.round(pointerPosition.y),
+          endPointX: Math.round(pointerPosition.x) + doorWidth / 2,
           endPointY: Math.round(pointerPosition.y),
           type: action,
         },
@@ -152,7 +163,7 @@ const MyStage = () => {
     }
     const stage = event.target.getStage();
     const point = stage.getRelativePointerPosition();
-    let currentWall = walls[walls.length - 1];
+    let currentWall = objects[objects.length - 1];
     if (action === 'WALL') {
       const degreeBetweenStartAndEnd = Math.abs(
         calculateDegreeBetweenPoints(
@@ -162,7 +173,7 @@ const MyStage = () => {
           point.y
         )
       );
-      // if (walls.length > 0){
+      // if (objects.length > 0){
       // const closestEndPoint = findClosestEndPoint(point);
       // // console.log(closestEndPoint);
 
@@ -193,15 +204,15 @@ const MyStage = () => {
       //     Math.abs(point.y - currentWall.startPointY) *
       //       Math.cos((45 * Math.PI) / 180);
 
-      walls.splice(walls.length - 1, 1, currentWall);
-      setWalls(walls.concat());
+      objects.splice(objects.length - 1, 1, currentWall);
+      setObjects(objects.concat());
     }
     if (action === 'WINDOW') {
       currentWall.endPointX = Math.round(point.x) + windowWidth / 2;
       currentWall.endPointY = Math.round(point.y);
       currentWall.startPointX = Math.round(point.x) - windowWidth / 2;
       currentWall.startPointY = Math.round(point.y);
-      let closestEndPoint = findClosestWall(point, walls);
+      let closestEndPoint = findClosestWall(point, objects);
 
       if (event.target.getClassName() === Line) {
         closestEndPoint.x = event.target.getPoints()[0];
@@ -228,8 +239,43 @@ const MyStage = () => {
         currentWall.endPointY = point.y - windowWidth / 2;
       }
 
-      walls.splice(walls.length - 1, 1, currentWall);
-      setWalls(walls.concat());
+      objects.splice(objects.length - 1, 1, currentWall);
+      setObjects(objects.concat());
+    }
+    if (action === 'DOOR') {
+      currentWall.endPointX = Math.round(point.x) + doorWidth / 2;
+      currentWall.endPointY = Math.round(point.y);
+      currentWall.startPointX = Math.round(point.x) - doorWidth / 2;
+      currentWall.startPointY = Math.round(point.y);
+      let closestEndPoint = findClosestWall(point, objects);
+
+      if (event.target.getClassName() === Line) {
+        closestEndPoint.x = event.target.getPoints()[0];
+        closestEndPoint.y = event.target.getPoints()[1];
+        closestEndPoint.endPointX = event.target.getPoints()[2];
+        closestEndPoint.endPointY = event.target.getPoints()[3];
+      }
+      currentWall.endPointY = closestEndPoint.y;
+      currentWall.startPointY = closestEndPoint.y;
+
+      if (
+        Math.abs(
+          calculateDegreeBetweenPoints(
+            closestEndPoint.x,
+            closestEndPoint.y,
+            closestEndPoint.endX,
+            closestEndPoint.endY
+          )
+        ) === 90
+      ) {
+        currentWall.startPointX = closestEndPoint.x;
+        currentWall.endPointX = closestEndPoint.x;
+        currentWall.startPointY = point.y + doorWidth / 2;
+        currentWall.endPointY = point.y - doorWidth / 2;
+      }
+
+      objects.splice(objects.length - 1, 1, currentWall);
+      setObjects(objects.concat());
     }
   };
 
@@ -247,7 +293,7 @@ const MyStage = () => {
   //   //console.log(event.currentTarget.position());
   //   // console.log('index =', index);
   //   //const pos = event.target.attrs.points;
-  //   // console.log(walls[event.target.index]);
+  //   // console.log(objects[event.target.index]);
   //   // console.log(event.target);
   //   // wall.startPointX = Math.round(pointerPosition.x) - windowWidth / 2;
   //   // wall.startPointY = Math.round(pointerPosition.y);
@@ -260,7 +306,7 @@ const MyStage = () => {
   //   //    startPointY: Math.round(point.y),
   //   // };
   //   // // // console.log(newPos);
-  //   let state = [...walls];
+  //   let state = [...objects];
   //   let item = state[0];
 
   //   item.startPointX += point.x;
@@ -268,7 +314,7 @@ const MyStage = () => {
   //   item.endPointX += point.x;
   //   item.endPointY += point.y;
   //   state[event.target.index] = item;
-  //   setWalls(state);
+  //   setObjects(state);
   //   event.target.getLayer().draw();
   // };
 
@@ -297,7 +343,7 @@ const MyStage = () => {
         {/* <Layer listening={false}>{gridComponents}</Layer> */}
 
         <Layer>
-          {walls.map(
+          {objects.map(
             (wall, i) =>
               wall.type === 'WALL' && (
                 <Line
@@ -308,13 +354,13 @@ const MyStage = () => {
                     wall.endPointX,
                     wall.endPointY,
                   ]}
-                  stroke='#5c5c5c'
+                  stroke='#3c3c3c'
                   strokeWidth={wallWidth}
                   //draggable={action === 'SELECT' ? true : false}
                 />
               )
           )}
-          {walls.map(
+          {objects.map(
             (wall, i) =>
               wall.type === 'WINDOW' && (
                 <Line
@@ -329,6 +375,25 @@ const MyStage = () => {
                   //onDragEnd={onDragEndHandler}
                   // draggable={action === 'SELECT' ? true : false}
                   stroke='red'
+                  strokeWidth={wallWidth}
+                />
+              )
+          )}
+          {objects.map(
+            (wall, i) =>
+              wall.type === 'DOOR' && (
+                <Line
+                  key={i}
+                  points={[
+                    wall.startPointX,
+                    wall.startPointY,
+                    wall.endPointX,
+                    wall.endPointY,
+                  ]}
+                  opacity={0.9}
+                  //onDragEnd={onDragEndHandler}
+                  // draggable={action === 'SELECT' ? true : false}
+                  stroke='brown'
                   strokeWidth={wallWidth}
                 />
               )

@@ -9,8 +9,14 @@ import Backdrop from './Backdrop';
 const Header = () => {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const stageContext = useContext(StageContext);
-  const { walls, setWalls, setIsStageVisable, setScale, history, setHistory } =
-    stageContext;
+  const {
+    objects,
+    setObjects,
+    setIsStageVisable,
+    setScale,
+    history,
+    setHistory,
+  } = stageContext;
   const [savedStateId, setSavedStateId] = useState(null);
   //const [isLoading, setIsLoading] = useState(false);
   const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
@@ -23,7 +29,7 @@ const Header = () => {
         'Content-Type': 'application/json',
       },
     };
-    const data = '{"walls":' + JSON.stringify(walls) + '}';
+    const data = '{"objects":' + JSON.stringify(objects) + '}';
     try {
       const res = await axios.post('/api/savedState', data, config);
       setIsSaveModalOpen(true);
@@ -46,6 +52,12 @@ const Header = () => {
   const setWindowAction = () => {
     stageContext.setAction('WINDOW');
   };
+  const setDoorAction = () => {
+    stageContext.setAction('DOOR');
+  };
+  const setTextAction = () => {
+    stageContext.setAction('TEXT');
+  };
 
   const closeModalHandler = () => {
     setIsSaveModalOpen(false);
@@ -54,8 +66,8 @@ const Header = () => {
   };
 
   const clearStateHandler = () => {
-    setHistory(walls);
-    setWalls([]);
+    setHistory(objects);
+    setObjects([]);
   };
 
   const resetScaleHandler = () => {
@@ -63,17 +75,17 @@ const Header = () => {
   };
 
   const undoHandler = () => {
-    if (walls.length === 0) {
-      setWalls(history);
+    if (objects.length === 0) {
+      setObjects(history);
       return;
     }
-    setHistory(walls);
-    setWalls(walls.slice(0, walls.length - 1));
+    setHistory(objects);
+    setObjects(objects.slice(0, objects.length - 1));
   };
 
   const redoHandler = () => {
     if (history.length === 0) return;
-    setWalls(history);
+    setObjects(history);
   };
 
   return (
@@ -88,6 +100,12 @@ const Header = () => {
         </button>
         <button className={classes.button} onClick={setWindowAction}>
           Window
+        </button>
+        <button className={classes.button} onClick={setDoorAction}>
+          Door
+        </button>
+        <button className={classes.button} onClick={setTextAction}>
+          Text
         </button>
         <button className={classes.button} onClick={saveStateHandler}>
           Save

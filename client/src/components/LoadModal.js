@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 
 const LoadModal = props => {
   const stageContext = useContext(StageContext);
-  const { setWalls } = stageContext;
+  const { setObjects } = stageContext;
   const idInputRef = useRef();
   const [isIdValid, setIsIdValid] = useState(true);
 
@@ -27,7 +27,7 @@ const LoadModal = props => {
       const res = await axios.get(
         `/api/savedState/${idInputRef.current.value}`
       );
-      setWalls(res.data.walls);
+      setObjects(res.data.objects);
       props.onCancel();
     } catch (err) {
       props.onCancel();

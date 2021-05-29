@@ -2,20 +2,20 @@ import { createContext, useState } from 'react';
 
 const StageContext = createContext({
   action: null,
-  walls: [],
+  objects: [],
   isStageVisable: true,
   scale: 1,
   history: [],
   setHistory: state => {},
   setAction: action => {},
-  setWalls: currentWall => {},
+  setObjects: currentWall => {},
   setIsStageVisable: value => {},
   setScale: scale => {},
 });
 
 export function StageContextProvider(props) {
   const [action, setAction] = useState([]);
-  const [walls, setWalls] = useState([]);
+  const [objects, setObjects] = useState([]);
   const [isStageVisable, setIsStageVisable] = useState(true);
   const [scale, setScale] = useState(1);
   const [history, setHistory] = useState([]);
@@ -24,8 +24,8 @@ export function StageContextProvider(props) {
     setAction(action);
   }
 
-  const setWallsHandler = currentWall => {
-    setWalls(currentWall);
+  const setObjectsHandler = currentWall => {
+    setObjects(currentWall);
   };
 
   const setIsStageVisableHandler = value => {
@@ -42,13 +42,13 @@ export function StageContextProvider(props) {
 
   const context = {
     action: action,
-    walls: walls,
+    objects: objects,
     isStageVisable: isStageVisable,
     scale: scale,
     history: history,
     setHistory: setHistoryHandler,
     setScale: setScaleHandler,
-    setWalls: setWallsHandler,
+    setObjects: setObjectsHandler,
     setAction: setActionHandler,
     setIsStageVisable: setIsStageVisableHandler,
   };

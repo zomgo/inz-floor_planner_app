@@ -71,7 +71,7 @@ export const findClosestEndPoint = (point, walls) => {
 
 export const findClosestWall = (point, walls) => {
   if (walls.length === 0) {
-    return 'Second argument cant be empty';
+    return;
   }
   let res = walls
     .filter(wall => wall.type === 'WALL')

@@ -6,11 +6,11 @@ const SavedState = require('../models/SavedState');
 // @route POST api/savedState
 // @desc Save state
 router.post('/', async (req, res) => {
-  const { walls } = req.body;
+  const { objects } = req.body;
 
   try {
     let savedState = new SavedState({
-      walls,
+      objects,
     });
     let id = savedState._id;
 

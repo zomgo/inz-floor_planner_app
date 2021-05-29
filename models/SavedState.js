@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const SavedStateSchema = mongoose.Schema({
-  walls: {
+  objects: {
     type: Array,
     required: true,
   },
