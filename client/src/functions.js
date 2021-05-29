@@ -3,7 +3,11 @@ export const calculateDegreeBetweenPoints = (x1, y1, x2, y2) => {
 };
 
 export const findClosestEndPoint = (point, walls) => {
+  if (walls.length === 0) {
+    return 'Second argument cant be empty';
+  }
   let res = walls
+    .filter(wall => wall.type === 'WALL')
     .map(wall => {
       return {
         dStart: Math.sqrt(
@@ -19,27 +23,48 @@ export const findClosestEndPoint = (point, walls) => {
         endPointX: wall.endPointX,
         endPointY: wall.endPointY,
       };
-    })
-    .reduce((prev, curr) => {
-      return (prev.dEnd || prev.dStart) < (curr.dEnd || curr.dStart)
-        ? prev
-        : curr;
     });
-  const closestPoint =
-    res.dStart < res.dEnd
-      ? {
-          distance: res.dStart,
-          x: res.startPointX,
-          y: res.startPointY,
-          endX: res.endPointX,
-          endY: res.endPointY,
+  const newRes = array => {
+    let newResArray = [];
+    for (let res of array) {
+      newResArray.push(
+        {
+          dStart: res.dStart,
+          startPointX: res.startPointX,
+          startPointY: res.startPointY,
+          endPointX: res.endPointX,
+          endPointY: res.endPointY,
+        },
+        {
+          dEnd: res.dEnd,
+          startPointX: res.startPointX,
+          startPointY: res.startPointY,
+          endPointX: res.endPointX,
+          endPointY: res.endPointY,
         }
-      : {
-          distance: res.dEnd,
-          x: res.endPointX,
-          y: res.endPointY,
-          endX: res.startPointX,
-          endY: res.startPointY,
-        };
+      );
+    }
+    return newResArray;
+  };
+  const aaa = newRes(res).reduce((prev, curr) => {
+    return (prev.dEnd || prev.dStart) <= (curr.dEnd || curr.dStart)
+      ? prev
+      : curr;
+  });
+  const closestPoint = aaa.dStart
+    ? {
+        distance: aaa.dStart,
+        x: aaa.startPointX,
+        y: aaa.startPointY,
+        endX: aaa.endPointX,
+        endY: aaa.endPointY,
+      }
+    : {
+        distance: aaa.dEnd,
+        x: aaa.endPointX,
+        y: aaa.endPointY,
+        endX: aaa.startPointX,
+        endY: aaa.startPointY,
+      };
   return closestPoint;
 };

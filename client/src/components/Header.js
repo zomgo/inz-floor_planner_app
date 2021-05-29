@@ -43,6 +43,9 @@ const Header = () => {
   const setSelectAction = () => {
     stageContext.setAction('SELECT');
   };
+  const setWindowAction = () => {
+    stageContext.setAction('WINDOW');
+  };
 
   const closeModalHandler = () => {
     setIsSaveModalOpen(false);
@@ -51,6 +54,7 @@ const Header = () => {
   };
 
   const clearStateHandler = () => {
+    setHistory(walls);
     setWalls([]);
   };
 
@@ -59,6 +63,10 @@ const Header = () => {
   };
 
   const undoHandler = () => {
+    if (walls.length === 0) {
+      setWalls(history);
+      return;
+    }
     setHistory(walls);
     setWalls(walls.slice(0, walls.length - 1));
   };
@@ -77,6 +85,9 @@ const Header = () => {
         </button>
         <button className={classes.button} onClick={setDrawWallAction}>
           Draw Wall
+        </button>
+        <button className={classes.button} onClick={setWindowAction}>
+          Window
         </button>
         <button className={classes.button} onClick={saveStateHandler}>
           Save
