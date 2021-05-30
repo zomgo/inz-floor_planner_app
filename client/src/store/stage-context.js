@@ -1,7 +1,7 @@
 import { createContext, useState } from 'react';
 
 const StageContext = createContext({
-  action: null,
+  action: 'SELECT',
   objects: [],
   isStageVisable: true,
   scale: 1,
@@ -14,7 +14,7 @@ const StageContext = createContext({
 });
 
 export function StageContextProvider(props) {
-  const [action, setAction] = useState([]);
+  const [action, setAction] = useState('SELECT');
   const [objects, setObjects] = useState([]);
   const [isStageVisable, setIsStageVisable] = useState(true);
   const [scale, setScale] = useState(1);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Stage, Layer, Line } from 'react-konva';
 import { useContext } from 'react';
 import StageContext from '../store/stage-context';
@@ -10,12 +10,12 @@ import {
 } from '../functions.js';
 //import classes from './MyStage.module.css';
 
-//const SIZE = 100;
+const SIZE = 50;
 const stageWidth = 2000;
 const stageHeight = 2000;
 const onMouseDownSnapDistance = 30;
 const wallWidth = 12;
-const zoomScaleBy = 1.04;
+const zoomScaleBy = 1.02;
 const zoomLimitUp = 2;
 const zoomLimitDown = 0.3;
 const windowWidth = 114;
@@ -28,7 +28,7 @@ const MyStage = () => {
     stageContext;
   const [stagePosition, setStagePosition] = useState({ x: 0, y: 0 });
   const [isDrawing, setIsDrawing] = useState(false);
-
+  const [grid, setGrid] = useState();
   const onWheelHandler = event => {
     event.evt.preventDefault();
 
@@ -53,50 +53,51 @@ const MyStage = () => {
     });
   };
 
-  // const startX =
-  //   Math.floor((-stagePosition.x - window.innerWidth) / SIZE) * SIZE;
-  // const endX =
-  //   Math.floor((-stagePosition.x + window.innerWidth * 2) / SIZE) * SIZE;
+  useEffect(() => {
+    const gridLayer = [];
+    for (let i = -stageWidth * 3; i < (stageWidth * 6) / scale; i += SIZE) {
+      gridLayer.push(
+        <Line
+          opacity={0.15}
+          stroke='black'
+          key={Math.random()}
+          width={1}
+          points={[
+            Math.round((-stageWidth * 2 - stagePosition.x / scale) / SIZE) *
+              SIZE,
+            Math.round((0 - stagePosition.y + i) / SIZE) * SIZE,
+            Math.round((stageWidth * 5 - stagePosition.x / scale) / SIZE) *
+              SIZE,
+            Math.round((i - stagePosition.y) / SIZE) * SIZE,
+          ]}
+        />
+      );
+    }
+    for (let i = -stageHeight * 2; i < stageHeight * 5; i += SIZE) {
+      gridLayer.push(
+        <Line
+          opacity={0.15}
+          stroke='black'
+          key={Math.random()}
+          width={1}
+          points={[
+            Math.round((0 + i - stagePosition.x) / SIZE) * SIZE,
+            Math.round((-stageHeight * 2 - stagePosition.y) / SIZE) * SIZE,
+            Math.round((i - stagePosition.x) / SIZE) * SIZE,
+            Math.round((stageHeight * 5 - stagePosition.y / scale) / SIZE) *
+              SIZE,
+          ]}
+        />
+      );
+    }
+    setGrid(gridLayer);
+  }, [stagePosition, scale]);
 
-  // const startY =
-  //   Math.floor((-stagePosition.y - window.innerHeight) / SIZE) * SIZE;
-  // const endY =
-  //   Math.floor((-stagePosition.y + window.innerHeight * 2) / SIZE) * SIZE;
-
-  // const gridComponents = [];
-  // for (var x = startX; x < endX; x += SIZE) {
-  //   for (var y = startY; y < endY; y += SIZE) {
-  //     // const indexX = Math.abs(x / SIZE) % grid.length;
-  //     // const indexY = Math.abs(y / SIZE) % grid[0].length;
-  //     // console.log(x);
-  //     gridComponents.push(
-  //       <Rect
-  //         key={Math.random()}
-  //         x={x}
-  //         y={y}
-  //         width={SIZE}
-  //         height={SIZE}
-  //         stroke='black'
-  //       />
-  //     );
-  //   }
-  // }
   const onMouseDownHandler = event => {
     setIsDrawing(true);
     const stage = event.target.getStage();
-    // const xArray = objects
-    //   .filter(o => o.type === 'WALL')
-    //   .map(o => [o.startPointX, o.endPointX])
-    //   .flat();
-
     const pointerPosition = stage.getRelativePointerPosition();
-    // console.log(
-    //   xArray.reduce((prev, curr) =>
-    //     Math.abs(curr - pointerPosition.x) < Math.abs(prev - pointerPosition.x)
-    //       ? curr
-    //       : prev
-    //   )
-    // );
+
     if (action === 'WALL') {
       if (objects.length > 0) {
         const closestEndPoint = findClosestEndPoint(pointerPosition, objects);
@@ -204,14 +205,6 @@ const MyStage = () => {
           point.y
         )
       );
-      // if (objects.length > 0){
-      // const closestEndPoint = findClosestEndPoint(point);
-      // // console.log(closestEndPoint);
-
-      // if (closestEndPoint < DELTA) {
-      //   currentObject.endPointX = Math.round(closestEndPoint.x);
-      //   currentObject.endPointY = Math.round(closestEndPoint.y);
-      // }
 
       if (degreesBetweenStartAndEnd < 5 || degreesBetweenStartAndEnd > 175) {
         currentObject.endPointX = Math.round(point.x);
@@ -382,8 +375,7 @@ const MyStage = () => {
         scaleX={scale}
         scaleY={scale}
       >
-        {/* <Layer listening={false}>{gridComponents}</Layer> */}
-
+        <Layer listening={false}>{grid}</Layer>
         <Layer>
           {objects.map(
             (wall, i) =>
@@ -398,7 +390,6 @@ const MyStage = () => {
                   ]}
                   stroke='#3c3c3c'
                   strokeWidth={wallWidth}
-                  //draggable={action === 'SELECT' ? true : false}
                 />
               )
           )}
