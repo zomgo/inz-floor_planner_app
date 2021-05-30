@@ -46,25 +46,25 @@ export const findClosestEndPoint = (point, walls) => {
     }
     return newResArray;
   };
-  const aaa = newRes(res).reduce((prev, curr) => {
+  const helperArray = newRes(res).reduce((prev, curr) => {
     return (prev.dEnd || prev.dStart) <= (curr.dEnd || curr.dStart)
       ? prev
       : curr;
   });
-  const closestPoint = aaa.dStart
+  const closestPoint = helperArray.dStart
     ? {
-        distance: aaa.dStart,
-        x: aaa.startPointX,
-        y: aaa.startPointY,
-        endX: aaa.endPointX,
-        endY: aaa.endPointY,
+        distance: helperArray.dStart,
+        x: helperArray.startPointX,
+        y: helperArray.startPointY,
+        endX: helperArray.endPointX,
+        endY: helperArray.endPointY,
       }
     : {
-        distance: aaa.dEnd,
-        x: aaa.endPointX,
-        y: aaa.endPointY,
-        endX: aaa.startPointX,
-        endY: aaa.startPointY,
+        distance: helperArray.dEnd,
+        x: helperArray.endPointX,
+        y: helperArray.endPointY,
+        endX: helperArray.startPointX,
+        endY: helperArray.startPointY,
       };
   return closestPoint;
 };
@@ -98,4 +98,28 @@ export const findClosestWall = (point, walls) => {
       return prev.distance < curr.distance ? prev : curr;
     });
   return res;
+};
+
+export const pointToSnapWall = (point, objects, option = 'x') => {
+  if (objects.length < 2) {
+    return;
+  }
+  const res = objects
+    .slice(0, objects.length - 1)
+    .filter(o => o.type === 'WALL')
+    .map(o =>
+      option === 'x'
+        ? [o.startPointX, o.endPointX]
+        : [o.startPointY, o.endPointY]
+    )
+    .flat();
+
+  const pointToSnap =
+    res.length > 1
+      ? res.reduce((prev, curr) =>
+          Math.abs(curr - point) < Math.abs(prev - point) ? curr : prev
+        )
+      : 0;
+
+  return pointToSnap;
 };

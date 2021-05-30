@@ -6,6 +6,7 @@ import {
   findClosestEndPoint,
   calculateDegreeBetweenPoints,
   findClosestWall,
+  pointToSnapWall,
 } from '../functions.js';
 //import classes from './MyStage.module.css';
 
@@ -13,12 +14,13 @@ import {
 const stageWidth = 2000;
 const stageHeight = 2000;
 const onMouseDownSnapDistance = 30;
-const wallWidth = 10;
+const wallWidth = 12;
 const zoomScaleBy = 1.04;
 const zoomLimitUp = 2;
 const zoomLimitDown = 0.3;
 const windowWidth = 114;
 const doorWidth = 80;
+const wallSnapDistance = 30;
 
 const MyStage = () => {
   const stageContext = useContext(StageContext);
@@ -82,7 +84,19 @@ const MyStage = () => {
   const onMouseDownHandler = event => {
     setIsDrawing(true);
     const stage = event.target.getStage();
+    // const xArray = objects
+    //   .filter(o => o.type === 'WALL')
+    //   .map(o => [o.startPointX, o.endPointX])
+    //   .flat();
+
     const pointerPosition = stage.getRelativePointerPosition();
+    // console.log(
+    //   xArray.reduce((prev, curr) =>
+    //     Math.abs(curr - pointerPosition.x) < Math.abs(prev - pointerPosition.x)
+    //       ? curr
+    //       : prev
+    //   )
+    // );
     if (action === 'WALL') {
       if (objects.length > 0) {
         const closestEndPoint = findClosestEndPoint(pointerPosition, objects);
@@ -155,20 +169,37 @@ const MyStage = () => {
         },
       ]);
     }
+    if (action === 'TEXT') {
+      setObjects([
+        ...objects,
+        {
+          startPointX: Math.round(pointerPosition.x) - doorWidth / 2,
+          startPointY: Math.round(pointerPosition.y),
+          endPointX: Math.round(pointerPosition.x) + doorWidth / 2,
+          endPointY: Math.round(pointerPosition.y),
+          type: action,
+        },
+      ]);
+    }
   };
 
   const onMouseMoveHandler = event => {
+    const updateObjectsState = currentObject => {
+      objects.splice(objects.length - 1, 1, currentObject);
+      setObjects(objects.concat());
+    };
+
     if (!isDrawing) {
       return;
     }
     const stage = event.target.getStage();
     const point = stage.getRelativePointerPosition();
-    let currentWall = objects[objects.length - 1];
+    let currentObject = objects[objects.length - 1];
     if (action === 'WALL') {
-      const degreeBetweenStartAndEnd = Math.abs(
+      const degreesBetweenStartAndEnd = Math.abs(
         calculateDegreeBetweenPoints(
-          currentWall.startPointX,
-          currentWall.startPointY,
+          currentObject.startPointX,
+          currentObject.startPointY,
           point.x,
           point.y
         )
@@ -178,40 +209,53 @@ const MyStage = () => {
       // // console.log(closestEndPoint);
 
       // if (closestEndPoint < DELTA) {
-      //   currentWall.endPointX = Math.round(closestEndPoint.x);
-      //   currentWall.endPointY = Math.round(closestEndPoint.y);
+      //   currentObject.endPointX = Math.round(closestEndPoint.x);
+      //   currentObject.endPointY = Math.round(closestEndPoint.y);
       // }
-      if (degreeBetweenStartAndEnd < 5 || degreeBetweenStartAndEnd > 175) {
-        currentWall.endPointX = Math.round(point.x);
-        currentWall.endPointY = Math.round(currentWall.startPointY);
+
+      if (degreesBetweenStartAndEnd < 5 || degreesBetweenStartAndEnd > 175) {
+        currentObject.endPointX = Math.round(point.x);
+        const pointToSnap = pointToSnapWall(point.x, objects);
+        if (
+          Math.abs(pointToSnap - currentObject.endPointX) < wallSnapDistance
+        ) {
+          currentObject.endPointX = pointToSnap;
+        }
+        currentObject.endPointY = Math.round(currentObject.startPointY);
       } else if (
-        degreeBetweenStartAndEnd > 85 &&
-        degreeBetweenStartAndEnd < 95
+        degreesBetweenStartAndEnd > 85 &&
+        degreesBetweenStartAndEnd < 95
       ) {
-        currentWall.endPointX = Math.round(currentWall.startPointX);
-        currentWall.endPointY = Math.round(point.y);
+        currentObject.endPointY = Math.round(point.y);
+        const pointToSnap = pointToSnapWall(point.y, objects, 'y');
+        if (
+          Math.abs(pointToSnap - currentObject.endPointY) < wallSnapDistance
+        ) {
+          currentObject.endPointY = pointToSnap;
+        }
+
+        currentObject.endPointX = Math.round(currentObject.startPointX);
       } else {
-        currentWall.endPointX = Math.round(point.x);
-        currentWall.endPointY = Math.round(point.y);
+        currentObject.endPointX = Math.round(point.x);
+        currentObject.endPointY = Math.round(point.y);
       }
 
-      //   currentWall.endPointX =
+      //   currentObject.endPointX =
       //     point.x +
-      //     Math.abs(point.x - currentWall.startPointX) *
+      //     Math.abs(point.x - currentObject.startPointX) *
       //       Math.cos((45 * Math.PI) / 180);
-      //   currentWall.endPointY =
+      //   currentObject.endPointY =
       //     point.y +
-      //     Math.abs(point.y - currentWall.startPointY) *
+      //     Math.abs(point.y - currentObject.startPointY) *
       //       Math.cos((45 * Math.PI) / 180);
 
-      objects.splice(objects.length - 1, 1, currentWall);
-      setObjects(objects.concat());
+      updateObjectsState(currentObject);
     }
     if (action === 'WINDOW') {
-      currentWall.endPointX = Math.round(point.x) + windowWidth / 2;
-      currentWall.endPointY = Math.round(point.y);
-      currentWall.startPointX = Math.round(point.x) - windowWidth / 2;
-      currentWall.startPointY = Math.round(point.y);
+      currentObject.endPointX = Math.round(point.x) + windowWidth / 2;
+      currentObject.endPointY = Math.round(point.y);
+      currentObject.startPointX = Math.round(point.x) - windowWidth / 2;
+      currentObject.startPointY = Math.round(point.y);
       let closestEndPoint = findClosestWall(point, objects);
 
       if (event.target.getClassName() === Line) {
@@ -220,8 +264,8 @@ const MyStage = () => {
         closestEndPoint.endPointX = event.target.getPoints()[2];
         closestEndPoint.endPointY = event.target.getPoints()[3];
       }
-      currentWall.endPointY = closestEndPoint.y;
-      currentWall.startPointY = closestEndPoint.y;
+      currentObject.endPointY = closestEndPoint.y;
+      currentObject.startPointY = closestEndPoint.y;
 
       if (
         Math.abs(
@@ -233,20 +277,19 @@ const MyStage = () => {
           )
         ) === 90
       ) {
-        currentWall.startPointX = closestEndPoint.x;
-        currentWall.endPointX = closestEndPoint.x;
-        currentWall.startPointY = point.y + windowWidth / 2;
-        currentWall.endPointY = point.y - windowWidth / 2;
+        currentObject.startPointX = closestEndPoint.x;
+        currentObject.endPointX = closestEndPoint.x;
+        currentObject.startPointY = point.y + windowWidth / 2;
+        currentObject.endPointY = point.y - windowWidth / 2;
       }
 
-      objects.splice(objects.length - 1, 1, currentWall);
-      setObjects(objects.concat());
+      updateObjectsState(currentObject);
     }
     if (action === 'DOOR') {
-      currentWall.endPointX = Math.round(point.x) + doorWidth / 2;
-      currentWall.endPointY = Math.round(point.y);
-      currentWall.startPointX = Math.round(point.x) - doorWidth / 2;
-      currentWall.startPointY = Math.round(point.y);
+      currentObject.endPointX = Math.round(point.x) + doorWidth / 2;
+      currentObject.endPointY = Math.round(point.y);
+      currentObject.startPointX = Math.round(point.x) - doorWidth / 2;
+      currentObject.startPointY = Math.round(point.y);
       let closestEndPoint = findClosestWall(point, objects);
 
       if (event.target.getClassName() === Line) {
@@ -255,8 +298,8 @@ const MyStage = () => {
         closestEndPoint.endPointX = event.target.getPoints()[2];
         closestEndPoint.endPointY = event.target.getPoints()[3];
       }
-      currentWall.endPointY = closestEndPoint.y;
-      currentWall.startPointY = closestEndPoint.y;
+      currentObject.endPointY = closestEndPoint.y;
+      currentObject.startPointY = closestEndPoint.y;
 
       if (
         Math.abs(
@@ -268,14 +311,13 @@ const MyStage = () => {
           )
         ) === 90
       ) {
-        currentWall.startPointX = closestEndPoint.x;
-        currentWall.endPointX = closestEndPoint.x;
-        currentWall.startPointY = point.y + doorWidth / 2;
-        currentWall.endPointY = point.y - doorWidth / 2;
+        currentObject.startPointX = closestEndPoint.x;
+        currentObject.endPointX = closestEndPoint.x;
+        currentObject.startPointY = Math.round(point.y + doorWidth / 2);
+        currentObject.endPointY = Math.round(point.y - doorWidth / 2);
       }
 
-      objects.splice(objects.length - 1, 1, currentWall);
-      setObjects(objects.concat());
+      updateObjectsState(currentObject);
     }
   };
 
