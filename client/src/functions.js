@@ -1,9 +1,11 @@
+import { Line } from 'react-konva';
+
 export const calculateDegreeBetweenPoints = (x1, y1, x2, y2) => {
   return (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI;
 };
 
 export const findClosestEndPoint = (point, walls) => {
-  if (walls.length === 0) {
+  if (walls.filter(wall => wall.type === 'WALL').length === 0) {
     return;
   }
   let res = walls
@@ -122,4 +124,45 @@ export const pointToSnapWall = (point, objects, option = 'x') => {
       : 0;
 
   return pointToSnap;
+};
+
+export const generateGrdiLayer = (
+  stageWidth,
+  stageHeight,
+  stagePosition,
+  scale,
+  SIZE
+) => {
+  const gridLayer = [];
+  for (let i = -stageWidth * 3; i < (stageWidth * 6) / scale; i += SIZE) {
+    gridLayer.push(
+      <Line
+        opacity={0.2}
+        stroke='black'
+        key={gridLayer.length}
+        strokeWidth={1}
+        points={[
+          Math.round((-stageWidth * 2 - stagePosition.x / scale) / SIZE) * SIZE,
+          Math.round((0 - stagePosition.y + i) / SIZE) * SIZE,
+          Math.round((stageWidth * 5 - stagePosition.x / scale) / SIZE) * SIZE,
+          Math.round((i - stagePosition.y) / SIZE) * SIZE,
+        ]}
+      />
+    );
+    gridLayer.push(
+      <Line
+        opacity={0.2}
+        stroke='black'
+        key={gridLayer.length}
+        strokeWidth={1}
+        points={[
+          Math.round((0 + i - stagePosition.x) / SIZE) * SIZE,
+          Math.round((-stageHeight * 2 - stagePosition.y) / SIZE) * SIZE,
+          Math.round((i - stagePosition.x) / SIZE) * SIZE,
+          Math.round((stageHeight * 5 - stagePosition.y / scale) / SIZE) * SIZE,
+        ]}
+      />
+    );
+  }
+  return gridLayer;
 };

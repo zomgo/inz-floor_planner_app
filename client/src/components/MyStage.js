@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Stage, Layer, Line } from 'react-konva';
+import { Stage, Layer, Line, Text } from 'react-konva';
 import { useContext } from 'react';
 import StageContext from '../store/stage-context';
 import {
@@ -7,8 +7,8 @@ import {
   calculateDegreeBetweenPoints,
   findClosestWall,
   pointToSnapWall,
+  generateGrdiLayer,
 } from '../functions.js';
-//import classes from './MyStage.module.css';
 
 const SIZE = 50;
 const stageWidth = 2000;
@@ -54,42 +54,13 @@ const MyStage = () => {
   };
 
   useEffect(() => {
-    const gridLayer = [];
-    for (let i = -stageWidth * 3; i < (stageWidth * 6) / scale; i += SIZE) {
-      gridLayer.push(
-        <Line
-          opacity={0.15}
-          stroke='black'
-          key={Math.random()}
-          width={1}
-          points={[
-            Math.round((-stageWidth * 2 - stagePosition.x / scale) / SIZE) *
-              SIZE,
-            Math.round((0 - stagePosition.y + i) / SIZE) * SIZE,
-            Math.round((stageWidth * 5 - stagePosition.x / scale) / SIZE) *
-              SIZE,
-            Math.round((i - stagePosition.y) / SIZE) * SIZE,
-          ]}
-        />
-      );
-    }
-    for (let i = -stageHeight * 2; i < stageHeight * 5; i += SIZE) {
-      gridLayer.push(
-        <Line
-          opacity={0.15}
-          stroke='black'
-          key={Math.random()}
-          width={1}
-          points={[
-            Math.round((0 + i - stagePosition.x) / SIZE) * SIZE,
-            Math.round((-stageHeight * 2 - stagePosition.y) / SIZE) * SIZE,
-            Math.round((i - stagePosition.x) / SIZE) * SIZE,
-            Math.round((stageHeight * 5 - stagePosition.y / scale) / SIZE) *
-              SIZE,
-          ]}
-        />
-      );
-    }
+    const gridLayer = generateGrdiLayer(
+      stageWidth,
+      stageHeight,
+      stagePosition,
+      scale,
+      SIZE
+    );
     setGrid(gridLayer);
   }, [stagePosition, scale]);
 
@@ -99,7 +70,7 @@ const MyStage = () => {
     const pointerPosition = stage.getRelativePointerPosition();
 
     if (action === 'WALL') {
-      if (objects.length > 0) {
+      if (objects.filter(o => o.type === 'WALL').length > 0) {
         const closestEndPoint = findClosestEndPoint(pointerPosition, objects);
         if (closestEndPoint.distance < onMouseDownSnapDistance) {
           const angle = Math.round(
@@ -130,6 +101,7 @@ const MyStage = () => {
               endPointX: Math.round(pointerPosition.x),
               endPointY: Math.round(pointerPosition.y),
               type: action,
+              index: objects.length,
             },
           ]);
           return;
@@ -143,6 +115,7 @@ const MyStage = () => {
           endPointX: Math.round(pointerPosition.x),
           endPointY: Math.round(pointerPosition.y),
           type: action,
+          index: objects.length,
         },
       ]);
     }
@@ -155,6 +128,7 @@ const MyStage = () => {
           endPointX: Math.round(pointerPosition.x) + windowWidth / 2,
           endPointY: Math.round(pointerPosition.y),
           type: action,
+          index: objects.length,
         },
       ]);
     }
@@ -167,6 +141,7 @@ const MyStage = () => {
           endPointX: Math.round(pointerPosition.x) + doorWidth / 2,
           endPointY: Math.round(pointerPosition.y),
           type: action,
+          index: objects.length,
         },
       ]);
     }
@@ -174,11 +149,12 @@ const MyStage = () => {
       setObjects([
         ...objects,
         {
-          startPointX: Math.round(pointerPosition.x) - doorWidth / 2,
-          startPointY: Math.round(pointerPosition.y),
-          endPointX: Math.round(pointerPosition.x) + doorWidth / 2,
-          endPointY: Math.round(pointerPosition.y),
+          x: Math.round(pointerPosition.x),
+          y: Math.round(pointerPosition.y),
+          text: 'test text',
           type: action,
+          index: objects.length,
+          DUPA: 'DUPA',
         },
       ]);
     }
@@ -314,6 +290,21 @@ const MyStage = () => {
     }
   };
 
+  const onDragEndTextHandler = e => {
+    e.currentTarget.setAttrs({ text: 'DUPA' });
+    //console.log(e.target);
+    // console.log(e.currentTarget);
+    // console.log(e.currentTarget);
+    //  let state = [...objects];
+    // console.log(state);
+    // let item = state.filter(o => o.x === e.currentTarget.position().x);
+    //console.log(item);
+    // item.x = e.currentTarget.position().x;
+    // item.y = e.currentTarget.position().y;
+    // state[0] = item;
+    // setObjects(state);
+  };
+
   // const onDragEndHandler = event => {
   //   // console.log(event.target);
   //   const stage = event.target.getStage();
@@ -378,15 +369,15 @@ const MyStage = () => {
         <Layer listening={false}>{grid}</Layer>
         <Layer>
           {objects.map(
-            (wall, i) =>
-              wall.type === 'WALL' && (
+            (object, i) =>
+              object.type === 'WALL' && (
                 <Line
                   key={i}
                   points={[
-                    wall.startPointX,
-                    wall.startPointY,
-                    wall.endPointX,
-                    wall.endPointY,
+                    object.startPointX,
+                    object.startPointY,
+                    object.endPointX,
+                    object.endPointY,
                   ]}
                   stroke='#3c3c3c'
                   strokeWidth={wallWidth}
@@ -394,40 +385,57 @@ const MyStage = () => {
               )
           )}
           {objects.map(
-            (wall, i) =>
-              wall.type === 'WINDOW' && (
+            (object, i) =>
+              object.type === 'WINDOW' && (
                 <Line
                   key={i}
                   points={[
-                    wall.startPointX,
-                    wall.startPointY,
-                    wall.endPointX,
-                    wall.endPointY,
+                    object.startPointX,
+                    object.startPointY,
+                    object.endPointX,
+                    object.endPointY,
                   ]}
                   opacity={0.9}
                   //onDragEnd={onDragEndHandler}
                   // draggable={action === 'SELECT' ? true : false}
-                  stroke='red'
+                  stroke='white'
+                  strokeWidth={wallWidth / 3}
+                />
+              )
+          )}
+          {objects.map(
+            (object, i) =>
+              object.type === 'DOOR' && (
+                <Line
+                  key={i}
+                  points={[
+                    object.startPointX,
+                    object.startPointY,
+                    object.endPointX,
+                    object.endPointY,
+                  ]}
+                  opacity={1}
+                  //onDragEnd={onDragEndHandler}
+                  // draggable={action === 'SELECT' ? true : false}
+                  stroke='#8a8a8a'
                   strokeWidth={wallWidth}
                 />
               )
           )}
           {objects.map(
-            (wall, i) =>
-              wall.type === 'DOOR' && (
-                <Line
+            (object, i) =>
+              object.type === 'TEXT' && (
+                <Text
                   key={i}
-                  points={[
-                    wall.startPointX,
-                    wall.startPointY,
-                    wall.endPointX,
-                    wall.endPointY,
-                  ]}
-                  opacity={0.9}
-                  //onDragEnd={onDragEndHandler}
-                  // draggable={action === 'SELECT' ? true : false}
-                  stroke='brown'
-                  strokeWidth={wallWidth}
+                  fontSize={20}
+                  align={'left'}
+                  fontStyle={20}
+                  draggable
+                  text={object.text}
+                  x={object.x}
+                  y={object.y}
+                  wrap='word'
+                  onDragEnd={onDragEndTextHandler}
                 />
               )
           )}
