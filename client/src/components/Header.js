@@ -16,6 +16,10 @@ const Header = () => {
     setScale,
     history,
     setHistory,
+    history2,
+    historyPosition,
+    setHistoryPosition,
+    setHistory2,
   } = stageContext;
   const [savedStateId, setSavedStateId] = useState(null);
   //const [isLoading, setIsLoading] = useState(false);
@@ -68,6 +72,8 @@ const Header = () => {
   const clearStateHandler = () => {
     setHistory(objects);
     setObjects([]);
+    setHistory2();
+    setHistoryPosition(0);
   };
 
   const resetScaleHandler = () => {
@@ -75,17 +81,25 @@ const Header = () => {
   };
 
   const undoHandler = () => {
-    if (objects.length === 0) {
-      setObjects(history);
+    if (historyPosition > history2.length) {
+      setObjects(history2[0]);
+    }
+    if (historyPosition <= 0) {
+      setObjects([]);
+      setHistoryPosition(-1);
       return;
     }
-    setHistory(objects);
-    setObjects(objects.slice(0, objects.length - 1));
+    setObjects(history2[historyPosition - 1]);
+
+    setHistoryPosition(historyPosition - 1);
   };
 
   const redoHandler = () => {
-    if (history.length === 0) return;
-    setObjects(history);
+    if (historyPosition >= history2.length - 1) {
+      return;
+    }
+    setObjects(history2[historyPosition + 1]);
+    setHistoryPosition(historyPosition + 1);
   };
 
   return (

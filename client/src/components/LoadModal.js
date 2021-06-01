@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 
 const LoadModal = props => {
   const stageContext = useContext(StageContext);
-  const { setObjects } = stageContext;
+  const { setObjects, setHistoryPosition, setHistory2 } = stageContext;
   const idInputRef = useRef();
   const [isIdValid, setIsIdValid] = useState(true);
 
@@ -28,6 +28,8 @@ const LoadModal = props => {
         `/api/savedState/${idInputRef.current.value}`
       );
       setObjects(res.data.objects);
+      setHistory2(res.data.objects);
+      setHistoryPosition(0);
       props.onCancel();
     } catch (err) {
       props.onCancel();

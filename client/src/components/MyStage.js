@@ -9,13 +9,14 @@ import {
   findClosestWall,
   pointToSnapWall,
   generateGrdiLayer,
+  calculateLineLength,
 } from '../functions.js';
 
 const SIZE = 50;
 const stageWidth = 2000;
 const stageHeight = 2000;
 const onMouseDownSnapDistance = 30;
-const wallWidth = 12;
+const wallWidth = 18;
 const zoomScaleBy = 1.02;
 const zoomLimitUp = 2;
 const zoomLimitDown = 0.3;
@@ -34,10 +35,14 @@ const MyStage = () => {
     scale,
     setScale,
     setHistory,
+    history2,
+    setHistory2,
+    setHistoryPosition,
   } = stageContext;
   const [stagePosition, setStagePosition] = useState({ x: 0, y: 0 });
   const [isDrawing, setIsDrawing] = useState(false);
   const [grid, setGrid] = useState();
+
   const onWheelHandler = event => {
     event.evt.preventDefault();
 
@@ -110,7 +115,7 @@ const MyStage = () => {
               endPointX: Math.round(pointerPosition.x),
               endPointY: Math.round(pointerPosition.y),
               type: action,
-              index: objects.length,
+              index: uuidv4(),
             },
           ]);
           return;
@@ -231,10 +236,6 @@ const MyStage = () => {
       updateObjectsState(currentObject);
     }
     if (action === 'WINDOW') {
-      currentObject.endPointX = Math.round(point.x) + windowWidth / 2;
-      currentObject.endPointY = Math.round(point.y);
-      currentObject.startPointX = Math.round(point.x) - windowWidth / 2;
-      currentObject.startPointY = Math.round(point.y);
       let closestEndPoint = findClosestWall(point, objects);
 
       if (event.target.getClassName() === Line) {
@@ -243,6 +244,11 @@ const MyStage = () => {
         closestEndPoint.endPointX = event.target.getPoints()[2];
         closestEndPoint.endPointY = event.target.getPoints()[3];
       }
+      currentObject.endPointX = Math.round(point.x) + windowWidth / 2;
+      currentObject.endPointY = Math.round(point.y);
+      currentObject.startPointX = Math.round(point.x) - windowWidth / 2;
+      currentObject.startPointY = Math.round(point.y);
+
       currentObject.endPointY = closestEndPoint.y;
       currentObject.startPointY = closestEndPoint.y;
 
@@ -265,10 +271,6 @@ const MyStage = () => {
       updateObjectsState(currentObject);
     }
     if (action === 'DOOR') {
-      currentObject.endPointX = Math.round(point.x) + doorWidth / 2;
-      currentObject.endPointY = Math.round(point.y);
-      currentObject.startPointX = Math.round(point.x) - doorWidth / 2;
-      currentObject.startPointY = Math.round(point.y);
       let closestEndPoint = findClosestWall(point, objects);
 
       if (event.target.getClassName() === Line) {
@@ -277,6 +279,11 @@ const MyStage = () => {
         closestEndPoint.endPointX = event.target.getPoints()[2];
         closestEndPoint.endPointY = event.target.getPoints()[3];
       }
+      currentObject.endPointX = Math.round(point.x) + doorWidth / 2;
+      currentObject.endPointY = Math.round(point.y);
+      currentObject.startPointX = Math.round(point.x) - doorWidth / 2;
+      currentObject.startPointY = Math.round(point.y);
+
       currentObject.endPointY = closestEndPoint.y;
       currentObject.startPointY = closestEndPoint.y;
 
@@ -310,6 +317,13 @@ const MyStage = () => {
   };
 
   const onMouseUpHandler = event => {
+    if (isDrawing && history2.length >= objects.length) {
+      console.log(history2.slice(0, objects.length));
+    }
+    if (isDrawing) {
+      setHistory2(objects);
+      setHistoryPosition(history2.length);
+    }
     setIsDrawing(false);
   };
 
@@ -383,8 +397,9 @@ const MyStage = () => {
                     object.endPointX,
                     object.endPointY,
                   ]}
-                  stroke='#3c3c3c'
+                  stroke='#4c4c4c'
                   strokeWidth={wallWidth}
+                  onDblClick={onDbClickTextHandler(object)}
                 />
               )
           )}
@@ -404,6 +419,7 @@ const MyStage = () => {
                   // draggable={action === 'SELECT' ? true : false}
                   stroke='white'
                   strokeWidth={wallWidth / 3}
+                  onDblClick={onDbClickTextHandler(object)}
                 />
               )
           )}
@@ -419,11 +435,12 @@ const MyStage = () => {
                     object.endPointY,
                   ]}
                   opacity={1}
+                  lineJoin='bevel'
                   //onDragEnd={onDragEndHandler}
                   // draggable={action === 'SELECT' ? true : false}
-                  onMouseMove={() => console.log('hi')}
-                  stroke='#8a8a8a'
-                  strokeWidth={wallWidth}
+                  stroke='#d4d4d4'
+                  strokeWidth={wallWidth / 1.5}
+                  onDblClick={onDbClickTextHandler(object)}
                 />
               )
           )}
@@ -447,6 +464,30 @@ const MyStage = () => {
                 />
               )
           )}
+          {objects.map(
+            (object, i) =>
+              object.type === 'WALL' && (
+                <Text
+                  key={i}
+                  x={
+                    (object.endPointX + object.startPointX) / 2 +
+                    wallWidth / 1.5
+                  }
+                  y={
+                    (object.endPointY + object.startPointY) / 2 +
+                    wallWidth / 1.5
+                  }
+                  text={calculateLineLength(
+                    object.startPointX,
+                    object.endPointX,
+                    object.startPointY,
+                    object.endPointY,
+                    'meters'
+                  )}
+                />
+              )
+          )}
+          <Line></Line>
         </Layer>
       </Stage>
       {objects.map(

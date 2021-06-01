@@ -6,7 +6,11 @@ const StageContext = createContext({
   isStageVisable: true,
   scale: 1,
   history: [],
+  history2: [],
+  historyPosition: 0,
+  setHistoryPosition: number => {},
   setHistory: state => {},
+  setHistory2: object => {},
   setAction: action => {},
   setObjects: currentWall => {},
   setIsStageVisable: value => {},
@@ -19,6 +23,8 @@ export function StageContextProvider(props) {
   const [isStageVisable, setIsStageVisable] = useState(true);
   const [scale, setScale] = useState(1);
   const [history, setHistory] = useState([]);
+  const [history2, setHistory2] = useState([]);
+  const [historyPosition, setHistoryPosition] = useState(0);
 
   function setActionHandler(action) {
     setAction(action);
@@ -39,6 +45,22 @@ export function StageContextProvider(props) {
   const setHistoryHandler = state => {
     setHistory(state);
   };
+  const setHistory2Handler = objects => {
+    if (history2.length >= objects.length) {
+      setHistory2(history2.slice(0, objects.length));
+      return;
+    }
+    if (objects === undefined) {
+      setHistory2([]);
+      return;
+    }
+    //setHistory2(null);
+    setHistory2([...history2, objects]);
+  };
+
+  const setHistoryPositionHandler = number => {
+    setHistoryPosition(number);
+  };
 
   const context = {
     action: action,
@@ -46,7 +68,11 @@ export function StageContextProvider(props) {
     isStageVisable: isStageVisable,
     scale: scale,
     history: history,
+    history2: history2,
+    historyPosition: historyPosition,
+    setHistoryPosition: setHistoryPositionHandler,
     setHistory: setHistoryHandler,
+    setHistory2: setHistory2Handler,
     setScale: setScaleHandler,
     setObjects: setObjectsHandler,
     setAction: setActionHandler,
