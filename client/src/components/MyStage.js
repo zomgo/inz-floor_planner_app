@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Stage, Layer, Line, Text } from 'react-konva';
 import { useContext } from 'react';
 import StageContext from '../store/stage-context';
+import { v4 as uuidv4 } from 'uuid';
 import {
   findClosestEndPoint,
   calculateDegreeBetweenPoints,
@@ -21,11 +22,19 @@ const zoomLimitDown = 0.3;
 const windowWidth = 114;
 const doorWidth = 80;
 const wallSnapDistance = 30;
+const wallSnapDegree = 10;
 
 const MyStage = () => {
   const stageContext = useContext(StageContext);
-  const { action, objects, setObjects, isStageVisable, scale, setScale } =
-    stageContext;
+  const {
+    action,
+    objects,
+    setObjects,
+    isStageVisable,
+    scale,
+    setScale,
+    setHistory,
+  } = stageContext;
   const [stagePosition, setStagePosition] = useState({ x: 0, y: 0 });
   const [isDrawing, setIsDrawing] = useState(false);
   const [grid, setGrid] = useState();
@@ -115,7 +124,7 @@ const MyStage = () => {
           endPointX: Math.round(pointerPosition.x),
           endPointY: Math.round(pointerPosition.y),
           type: action,
-          index: objects.length,
+          index: uuidv4(),
         },
       ]);
     }
@@ -128,7 +137,7 @@ const MyStage = () => {
           endPointX: Math.round(pointerPosition.x) + windowWidth / 2,
           endPointY: Math.round(pointerPosition.y),
           type: action,
-          index: objects.length,
+          index: uuidv4(),
         },
       ]);
     }
@@ -141,7 +150,7 @@ const MyStage = () => {
           endPointX: Math.round(pointerPosition.x) + doorWidth / 2,
           endPointY: Math.round(pointerPosition.y),
           type: action,
-          index: objects.length,
+          index: uuidv4(),
         },
       ]);
     }
@@ -151,10 +160,9 @@ const MyStage = () => {
         {
           x: Math.round(pointerPosition.x),
           y: Math.round(pointerPosition.y),
-          text: 'test text',
+          text: 'click to edit',
           type: action,
-          index: objects.length,
-          DUPA: 'DUPA',
+          index: uuidv4(),
         },
       ]);
     }
@@ -181,8 +189,10 @@ const MyStage = () => {
           point.y
         )
       );
-
-      if (degreesBetweenStartAndEnd < 5 || degreesBetweenStartAndEnd > 175) {
+      if (
+        degreesBetweenStartAndEnd < wallSnapDegree ||
+        degreesBetweenStartAndEnd > 180 - wallSnapDegree
+      ) {
         currentObject.endPointX = Math.round(point.x);
         const pointToSnap = pointToSnapWall(point.x, objects);
         if (
@@ -192,8 +202,8 @@ const MyStage = () => {
         }
         currentObject.endPointY = Math.round(currentObject.startPointY);
       } else if (
-        degreesBetweenStartAndEnd > 85 &&
-        degreesBetweenStartAndEnd < 95
+        degreesBetweenStartAndEnd > 90 - wallSnapDegree &&
+        degreesBetweenStartAndEnd < 90 + wallSnapDegree
       ) {
         currentObject.endPointY = Math.round(point.y);
         const pointToSnap = pointToSnapWall(point.y, objects, 'y');
@@ -290,67 +300,61 @@ const MyStage = () => {
     }
   };
 
-  const onDragEndTextHandler = e => {
-    e.currentTarget.setAttrs({ text: 'DUPA' });
-    //console.log(e.target);
-    // console.log(e.currentTarget);
-    // console.log(e.currentTarget);
-    //  let state = [...objects];
-    // console.log(state);
-    // let item = state.filter(o => o.x === e.currentTarget.position().x);
-    //console.log(item);
-    // item.x = e.currentTarget.position().x;
-    // item.y = e.currentTarget.position().y;
-    // state[0] = item;
-    // setObjects(state);
+  const onDragEndTextHandler = currentObject => e => {
+    let state = [...objects];
+    let [updatedText] = state.filter(o => o.index === currentObject.index);
+    updatedText.x = e.currentTarget.position().x;
+    updatedText.y = e.currentTarget.position().y;
+    state[currentObject.index] = updatedText;
+    setObjects(state);
   };
-
-  // const onDragEndHandler = event => {
-  //   // console.log(event.target);
-  //   const stage = event.target.getStage();
-  //   console.log('x=', event.target.x(), 'y=', event.target.y());
-  //   // const pointer = stage.absolutePosition();
-  //   // console.log(event.target.absolutePosition(stage));
-  //   const point = { x: event.target.x(), y: event.target.y() };
-  //   // const index = event.target.index;
-  //   // console.log(event.target);
-  //   //  console.log(point);
-  //   // console.log(point);
-  //   //console.log(event.currentTarget.position());
-  //   // console.log('index =', index);
-  //   //const pos = event.target.attrs.points;
-  //   // console.log(objects[event.target.index]);
-  //   // console.log(event.target);
-  //   // wall.startPointX = Math.round(pointerPosition.x) - windowWidth / 2;
-  //   // wall.startPointY = Math.round(pointerPosition.y);
-  //   // wall.endPointX = Math.round(pointerPosition.x) + windowWidth / 2;
-  //   // wall.endPointY = Math.round(pointerPosition.y);
-  //   //  const newPos = {
-  //   //    endPointX: Math.round(point.x) + windowWidth / 2,
-  //   //    endPointY: Math.round(point.y),
-  //   //    startPointX: Math.round(point.x) - windowWidth / 2,
-  //   //    startPointY: Math.round(point.y),
-  //   // };
-  //   // // // console.log(newPos);
-  //   let state = [...objects];
-  //   let item = state[0];
-
-  //   item.startPointX += point.x;
-  //   item.startPointY += point.y;
-  //   item.endPointX += point.x;
-  //   item.endPointY += point.y;
-  //   state[event.target.index] = item;
-  //   setObjects(state);
-  //   event.target.getLayer().draw();
-  // };
 
   const onMouseUpHandler = event => {
     setIsDrawing(false);
   };
 
+  const handleTextareaKeyDown = currentObject => e => {
+    if (e.keyCode === 13) {
+      let state = [...objects];
+      let [updatedText] = state.filter(o => o.index === currentObject.index);
+      updatedText.textEditVisible = false;
+      state[currentObject.index] = updatedText;
+      setObjects(state);
+    }
+  };
+
+  const handleTextEdit = currentObject => e => {
+    let state = [...objects];
+    let [updatedText] = state.filter(o => o.index === currentObject.index);
+    updatedText.text = e.target.value;
+    state[currentObject.index] = updatedText;
+    setObjects(state);
+  };
+
+  const onClickTextHandler = currentObject => e => {
+    const position = e.currentTarget.getAbsolutePosition();
+    let state = [...objects];
+    let [updatedText] = state.filter(o => o.index === currentObject.index);
+    updatedText.textEditVisible = true;
+    updatedText.textAreaX = position.x;
+    updatedText.textAreaY = position.y;
+    state[currentObject.index] = updatedText;
+    setObjects(state);
+  };
+  const onDbClickTextHandler = currentObject => e => {
+    let state = [...objects].filter(o => o.index !== currentObject.index);
+    setHistory(objects);
+    setObjects(state);
+  };
+
+  const onMouseDownTextHandler = object => e => {
+    console.log(e.evt.button);
+  };
   return (
     <div>
       <Stage
+        onContextMenu={e => e.evt.preventDefault()}
+        on
         x={stagePosition.x}
         y={stagePosition.y}
         visible={isStageVisable}
@@ -417,6 +421,7 @@ const MyStage = () => {
                   opacity={1}
                   //onDragEnd={onDragEndHandler}
                   // draggable={action === 'SELECT' ? true : false}
+                  onMouseMove={() => console.log('hi')}
                   stroke='#8a8a8a'
                   strokeWidth={wallWidth}
                 />
@@ -435,12 +440,33 @@ const MyStage = () => {
                   x={object.x}
                   y={object.y}
                   wrap='word'
-                  onDragEnd={onDragEndTextHandler}
+                  onDragEnd={onDragEndTextHandler(object)}
+                  onClick={onClickTextHandler(object)}
+                  onDblClick={onDbClickTextHandler(object)}
+                  onMouseDown={onMouseDownTextHandler(object)}
                 />
               )
           )}
         </Layer>
       </Stage>
+      {objects.map(
+        (object, i) =>
+          object.type === 'TEXT' && (
+            <textarea
+              key={i}
+              value={object.text}
+              style={{
+                display: object.textEditVisible ? 'block' : 'none',
+                position: 'absolute',
+                left: object.textAreaX,
+                top: object.textAreaY,
+                backgroundColor: '#f2eee5',
+              }}
+              onChange={handleTextEdit(object)}
+              onKeyDown={handleTextareaKeyDown(object)}
+            />
+          )
+      )}
     </div>
   );
 };
