@@ -34,9 +34,8 @@ const MyStage = () => {
     isStageVisable,
     scale,
     setScale,
+    history,
     setHistory,
-    history2,
-    setHistory2,
     setHistoryPosition,
   } = stageContext;
   const [stagePosition, setStagePosition] = useState({ x: 0, y: 0 });
@@ -317,12 +316,20 @@ const MyStage = () => {
   };
 
   const onMouseUpHandler = event => {
-    if (isDrawing && history2.length >= objects.length) {
-      console.log(history2.slice(0, objects.length));
+    if (
+      isDrawing &&
+      (history.length > objects.length || history.length === objects.length)
+    ) {
+      const updatedHistory = [...history.slice(0, objects.length - 1), objects];
+      setHistory(updatedHistory);
+      setHistoryPosition(objects.length - 1);
+      setIsDrawing(false);
+      return;
     }
     if (isDrawing) {
-      setHistory2(objects);
-      setHistoryPosition(history2.length);
+      const updatedHistory = [...history, objects];
+      setHistory(updatedHistory);
+      setHistoryPosition(objects.length - 1);
     }
     setIsDrawing(false);
   };

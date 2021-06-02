@@ -15,11 +15,9 @@ const Header = () => {
     setIsStageVisable,
     setScale,
     history,
-    setHistory,
-    history2,
     historyPosition,
     setHistoryPosition,
-    setHistory2,
+    setHistory,
   } = stageContext;
   const [savedStateId, setSavedStateId] = useState(null);
   //const [isLoading, setIsLoading] = useState(false);
@@ -70,9 +68,8 @@ const Header = () => {
   };
 
   const clearStateHandler = () => {
-    setHistory(objects);
     setObjects([]);
-    setHistory2();
+    setHistory([]);
     setHistoryPosition(0);
   };
 
@@ -81,24 +78,24 @@ const Header = () => {
   };
 
   const undoHandler = () => {
-    if (historyPosition > history2.length) {
-      setObjects(history2[0]);
+    if (historyPosition > history.length) {
+      setObjects(history[0]);
     }
     if (historyPosition <= 0) {
       setObjects([]);
       setHistoryPosition(-1);
       return;
     }
-    setObjects(history2[historyPosition - 1]);
+    setObjects(history[historyPosition - 1]);
 
     setHistoryPosition(historyPosition - 1);
   };
 
   const redoHandler = () => {
-    if (historyPosition >= history2.length - 1) {
+    if (historyPosition >= history.length - 1) {
       return;
     }
-    setObjects(history2[historyPosition + 1]);
+    setObjects(history[historyPosition + 1]);
     setHistoryPosition(historyPosition + 1);
   };
 

@@ -7,7 +7,12 @@ export const calculateDegreeBetweenPoints = (x1, y1, x2, y2) => {
 export const calculateLineLength = (x1, x2, y1, y2, option = null) => {
   if (option === 'meters') {
     return (
-      (2 * Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))) / 100 + ' m'
+      Math.round(
+        2 * Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)) * 100
+      ) /
+        100 /
+        100 +
+      ' m'
     );
   }
   return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
