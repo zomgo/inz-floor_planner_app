@@ -101,7 +101,9 @@ const Header = () => {
 
   return (
     <header className={classes.header}>
-      <h1 className={classes.h1}>Floor planner</h1>
+      <div>
+        <h1 className={classes.h1}>Floor planner</h1>
+      </div>
       <ul>
         <button className={classes.button} onClick={setSelectAction}>
           Select

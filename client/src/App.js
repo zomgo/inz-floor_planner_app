@@ -1,4 +1,3 @@
-//import DrawingBoard from './components/DrawingBoard';
 import Header from './components/Header';
 import MyStage from './components/MyStage';
 

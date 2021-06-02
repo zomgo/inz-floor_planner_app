@@ -12,7 +12,7 @@ import {
   calculateLineLength,
 } from '../functions.js';
 
-const SIZE = 50;
+const GridSize = 50;
 const stageWidth = 2000;
 const stageHeight = 2000;
 const onMouseDownSnapDistance = 30;
@@ -72,7 +72,7 @@ const MyStage = () => {
       stageHeight,
       stagePosition,
       scale,
-      SIZE
+      GridSize
     );
     setGrid(gridLayer);
   }, [stagePosition, scale]);
@@ -368,9 +368,6 @@ const MyStage = () => {
     setObjects(state);
   };
 
-  const onMouseDownTextHandler = object => e => {
-    console.log(e.evt.button);
-  };
   return (
     <div>
       <Stage
@@ -422,8 +419,6 @@ const MyStage = () => {
                     object.endPointY,
                   ]}
                   opacity={0.9}
-                  //onDragEnd={onDragEndHandler}
-                  // draggable={action === 'SELECT' ? true : false}
                   stroke='white'
                   strokeWidth={wallWidth / 3}
                   onDblClick={onDbClickTextHandler(object)}
@@ -467,7 +462,6 @@ const MyStage = () => {
                   onDragEnd={onDragEndTextHandler(object)}
                   onClick={onClickTextHandler(object)}
                   onDblClick={onDbClickTextHandler(object)}
-                  onMouseDown={onMouseDownTextHandler(object)}
                 />
               )
           )}
@@ -515,6 +509,23 @@ const MyStage = () => {
             />
           )
       )}
+      <div
+        style={{
+          boxShadow: '2px 2px 3px #ccc',
+          width: `${GridSize * scale}px`,
+          height: '20px',
+          color: 'white',
+          backgroundColor: '#ff73fd',
+          borderRadius: '4px',
+          marginRight: '10px',
+          position: 'absolute',
+          left: window.innerWidth - 100,
+          top: window.innerHeight - 50,
+          textAlign: 'center',
+        }}
+      >
+        1 m
+      </div>
     </div>
   );
 };
