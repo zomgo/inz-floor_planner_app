@@ -20,12 +20,13 @@ const Header = () => {
     setHistory,
   } = stageContext;
   const [savedStateId, setSavedStateId] = useState(null);
-  //const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
 
   const saveStateHandler = async () => {
+    setIsSaveModalOpen(true);
     setIsStageVisable(false);
-    // setIsLoading(true);
+    setIsLoading(true);
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -34,8 +35,8 @@ const Header = () => {
     const data = '{"objects":' + JSON.stringify(objects) + '}';
     try {
       const res = await axios.post('/api/savedState', data, config);
-      setIsSaveModalOpen(true);
-      //  setIsLoading(false);
+
+      setIsLoading(false);
       setSavedStateId(res.data);
     } catch (err) {}
   };
@@ -43,22 +44,6 @@ const Header = () => {
   const loadStateHandler = async id => {
     setIsStageVisable(false);
     setIsLoadModalOpen(true);
-  };
-
-  const setDrawWallAction = () => {
-    stageContext.setAction('WALL');
-  };
-  const setSelectAction = () => {
-    stageContext.setAction('SELECT');
-  };
-  const setWindowAction = () => {
-    stageContext.setAction('WINDOW');
-  };
-  const setDoorAction = () => {
-    stageContext.setAction('DOOR');
-  };
-  const setTextAction = () => {
-    stageContext.setAction('TEXT');
   };
 
   const closeModalHandler = () => {
@@ -102,35 +87,21 @@ const Header = () => {
   return (
     <header className={classes.header}>
       <div>
-        <h1 className={classes.h1}>Floor planner</h1>
+        <ul>
+          <button className={classes.button} onClick={clearStateHandler}>
+            Nowy Projekt
+          </button>
+          <button className={classes.button} onClick={saveStateHandler}>
+            Zapisz
+          </button>
+          <button className={classes.button} onClick={loadStateHandler}>
+            Wczytaj
+          </button>
+        </ul>
       </div>
       <ul>
-        <button className={classes.button} onClick={setSelectAction}>
-          Select
-        </button>
-        <button className={classes.button} onClick={setDrawWallAction}>
-          Draw Wall
-        </button>
-        <button className={classes.button} onClick={setWindowAction}>
-          Window
-        </button>
-        <button className={classes.button} onClick={setDoorAction}>
-          Door
-        </button>
-        <button className={classes.button} onClick={setTextAction}>
-          Text
-        </button>
-        <button className={classes.button} onClick={saveStateHandler}>
-          Save
-        </button>
-        <button className={classes.button} onClick={loadStateHandler}>
-          Load
-        </button>
-        <button className={classes.button} onClick={clearStateHandler}>
-          Clear project
-        </button>
         <button className={classes.button} onClick={resetScaleHandler}>
-          Reset zoom
+          Resetuj zoom
         </button>
         <button className={classes.button} onClick={undoHandler}>
           Undo
@@ -144,6 +115,7 @@ const Header = () => {
           text='Kod projektu:'
           onConfirm={closeModalHandler}
           id={savedStateId}
+          loading={isLoading}
         />
       )}
       {isSaveModalOpen && <Backdrop onCancel={closeModalHandler} />}

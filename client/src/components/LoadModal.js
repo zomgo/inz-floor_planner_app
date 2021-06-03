@@ -1,4 +1,4 @@
-import classess from './SaveModal.module.css';
+import classes from './SaveModal.module.css';
 import { useContext, useRef, useState } from 'react';
 import StageContext from '../store/stage-context';
 import axios from 'axios';
@@ -37,25 +37,31 @@ const LoadModal = props => {
   };
 
   return (
-    <form onSubmit={submitHandler}>
-      <div className={classess.modal}>
+    <div className={classes.modal}>
+      <form onSubmit={submitHandler}>
         <label htmlFor='id'>{props.text}</label>
         <br />
-        <input type='text' required id='id' ref={idInputRef} />
+        <input
+          className={classes.input}
+          type='text'
+          required
+          id='id'
+          ref={idInputRef}
+        />
         <br />
         {!isIdValid && <p style={{ color: 'red' }}>Nieprawidłowy kod</p>}
         <button
           type='button'
-          className={classess.button}
+          className={classes.button}
           onClick={confirmHandler}
         >
           Anuluj
         </button>
-        <button type='submit' className={classess.button}>
+        <button type='submit' className={classes.button}>
           Wczytaj
         </button>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 };
 

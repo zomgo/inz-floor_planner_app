@@ -1,4 +1,4 @@
-import classess from './SaveModal.module.css';
+import classes from './SaveModal.module.css';
 
 const SaveModal = props => {
   function confirmHandler() {
@@ -6,19 +6,24 @@ const SaveModal = props => {
   }
 
   return (
-    <div className={classess.modal}>
+    <div className={classes.modal}>
       <label htmlFor='id'>{props.text}</label>
       <br />
-      <input type='text' id='id' defaultValue={props.id} />
+      <input
+        className={classes.input}
+        type='text'
+        id='id'
+        defaultValue={props.id ? props.id : 'saving'}
+      />
       <button
         onClick={() => {
           navigator.clipboard.writeText(props.id);
         }}
       >
-        Copy
+        Kopiuj
       </button>
       <br />
-      <button className={classess.button} onClick={confirmHandler}>
+      <button className={classes.button} onClick={confirmHandler}>
         Ok
       </button>
     </div>

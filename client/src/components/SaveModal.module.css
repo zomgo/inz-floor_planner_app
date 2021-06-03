@@ -22,9 +22,15 @@
   padding: 1rem;
   text-align: center;
   width: 30rem;
-  z-index: 1000;
+  z-index: 10;
   position: fixed;
   top: 20vh;
   left: calc(50% - 15rem);
   margin: 2rem;
+}
+
+.input {
+  margin: 0.5rem;
+  width: 37%;
+  background: #f2eee5;
 }

@@ -11,15 +11,17 @@ import {
   generateGrdiLayer,
   calculateLineLength,
 } from '../functions.js';
+import ScaleBar from './ScaleBar';
+import DrawableObject from './DrawableObject';
 
-const GridSize = 50;
+const gridSize = 50;
 const stageWidth = 2000;
 const stageHeight = 2000;
 const onMouseDownSnapDistance = 30;
 const wallWidth = 18;
 const zoomScaleBy = 1.02;
 const zoomLimitUp = 2;
-const zoomLimitDown = 0.3;
+const zoomLimitDown = 0.5;
 const windowWidth = 114;
 const doorWidth = 80;
 const wallSnapDistance = 30;
@@ -72,7 +74,7 @@ const MyStage = () => {
       stageHeight,
       stagePosition,
       scale,
-      GridSize
+      gridSize
     );
     setGrid(gridLayer);
   }, [stagePosition, scale]);
@@ -235,8 +237,11 @@ const MyStage = () => {
       updateObjectsState(currentObject);
     }
     if (action === 'WINDOW') {
-      let closestEndPoint = findClosestWall(point, objects);
-
+      if (objects.filter(o => o.type === 'WALL').length === 0) {
+        setObjects([]);
+        return;
+      }
+      const closestEndPoint = findClosestWall(point, objects);
       if (event.target.getClassName() === Line) {
         closestEndPoint.x = event.target.getPoints()[0];
         closestEndPoint.y = event.target.getPoints()[1];
@@ -270,7 +275,11 @@ const MyStage = () => {
       updateObjectsState(currentObject);
     }
     if (action === 'DOOR') {
-      let closestEndPoint = findClosestWall(point, objects);
+      if (objects.filter(o => o.type === 'WALL').length === 0) {
+        setObjects([]);
+        return;
+      }
+      const closestEndPoint = findClosestWall(point, objects);
 
       if (event.target.getClassName() === Line) {
         closestEndPoint.x = event.target.getPoints()[0];
@@ -362,135 +371,98 @@ const MyStage = () => {
     state[currentObject.index] = updatedText;
     setObjects(state);
   };
-  const onDbClickTextHandler = currentObject => e => {
+  const onDbClickHandler = currentObject => e => {
+    console.log('hi');
     let state = [...objects].filter(o => o.index !== currentObject.index);
-    setHistory(objects);
+    setHistoryPosition(prevState => prevState - 1);
     setObjects(state);
   };
 
   return (
     <div>
-      <Stage
-        onContextMenu={e => e.evt.preventDefault()}
-        on
-        x={stagePosition.x}
-        y={stagePosition.y}
-        visible={isStageVisable}
-        width={stageWidth}
-        height={stageHeight}
-        onMouseDown={onMouseDownHandler}
-        onMouseMove={onMouseMoveHandler}
-        onMouseUp={onMouseUpHandler}
-        style={{ backgroundColor: '#f2eee5' }}
-        draggable={action === 'SELECT' ? true : false}
-        onDragEnd={e => setStagePosition(e.currentTarget.position())}
-        onWheel={onWheelHandler}
-        scaleX={scale}
-        scaleY={scale}
-      >
-        <Layer listening={false}>{grid}</Layer>
-        <Layer>
-          {objects.map(
-            (object, i) =>
-              object.type === 'WALL' && (
-                <Line
-                  key={i}
-                  points={[
-                    object.startPointX,
-                    object.startPointY,
-                    object.endPointX,
-                    object.endPointY,
-                  ]}
-                  stroke='#4c4c4c'
-                  strokeWidth={wallWidth}
-                  onDblClick={onDbClickTextHandler(object)}
-                />
-              )
-          )}
-          {objects.map(
-            (object, i) =>
-              object.type === 'WINDOW' && (
-                <Line
-                  key={i}
-                  points={[
-                    object.startPointX,
-                    object.startPointY,
-                    object.endPointX,
-                    object.endPointY,
-                  ]}
+      <StageContext.Consumer>
+        {value => (
+          <Stage
+            onContextMenu={e => e.evt.preventDefault()}
+            on
+            x={stagePosition.x}
+            y={stagePosition.y}
+            visible={isStageVisable}
+            width={stageWidth}
+            height={stageHeight}
+            onMouseDown={onMouseDownHandler}
+            onMouseMove={onMouseMoveHandler}
+            onMouseUp={onMouseUpHandler}
+            style={{ backgroundColor: '#f2eee5' }}
+            draggable={action === 'SELECT' ? true : false}
+            onDragEnd={e => setStagePosition(e.currentTarget.position())}
+            onWheel={onWheelHandler}
+            scaleX={scale}
+            scaleY={scale}
+          >
+            <Layer listening={false}>{grid}</Layer>
+            <StageContext.Provider value={value}>
+              <Layer>
+                <DrawableObject type='WALL' color='#4c4c4c' width={wallWidth} />
+                <DrawableObject
+                  type='WINDOW'
                   opacity={0.9}
-                  stroke='white'
-                  strokeWidth={wallWidth / 3}
-                  onDblClick={onDbClickTextHandler(object)}
+                  color='white'
+                  width={wallWidth / 3}
                 />
-              )
-          )}
-          {objects.map(
-            (object, i) =>
-              object.type === 'DOOR' && (
-                <Line
-                  key={i}
-                  points={[
-                    object.startPointX,
-                    object.startPointY,
-                    object.endPointX,
-                    object.endPointY,
-                  ]}
-                  opacity={1}
-                  lineJoin='bevel'
-                  //onDragEnd={onDragEndHandler}
-                  // draggable={action === 'SELECT' ? true : false}
-                  stroke='#d4d4d4'
-                  strokeWidth={wallWidth / 1.5}
-                  onDblClick={onDbClickTextHandler(object)}
+                <DrawableObject
+                  type='DOOR'
+                  color='#d4d4d4'
+                  width={wallWidth / 1.5}
                 />
-              )
-          )}
-          {objects.map(
-            (object, i) =>
-              object.type === 'TEXT' && (
-                <Text
-                  key={i}
-                  fontSize={20}
-                  align={'left'}
-                  fontStyle={20}
-                  draggable
-                  text={object.text}
-                  x={object.x}
-                  y={object.y}
-                  wrap='word'
-                  onDragEnd={onDragEndTextHandler(object)}
-                  onClick={onClickTextHandler(object)}
-                  onDblClick={onDbClickTextHandler(object)}
-                />
-              )
-          )}
-          {objects.map(
-            (object, i) =>
-              object.type === 'WALL' && (
-                <Text
-                  key={i}
-                  x={
-                    (object.endPointX + object.startPointX) / 2 +
-                    wallWidth / 1.5
-                  }
-                  y={
-                    (object.endPointY + object.startPointY) / 2 +
-                    wallWidth / 1.5
-                  }
-                  text={calculateLineLength(
-                    object.startPointX,
-                    object.endPointX,
-                    object.startPointY,
-                    object.endPointY,
-                    'meters'
-                  )}
-                />
-              )
-          )}
-          <Line></Line>
-        </Layer>
-      </Stage>
+                {objects.map(
+                  (object, i) =>
+                    object.type === 'TEXT' && (
+                      <Text
+                        key={i}
+                        fontSize={20}
+                        align={'left'}
+                        fontStyle={20}
+                        draggable
+                        text={object.text}
+                        x={object.x}
+                        y={object.y}
+                        wrap='word'
+                        onDragEnd={onDragEndTextHandler(object)}
+                        onClick={onClickTextHandler(object)}
+                        onDblClick={onDbClickHandler(object)}
+                      />
+                    )
+                )}
+                {objects.map(
+                  (object, i) =>
+                    object.type === 'WALL' && (
+                      <Text
+                        key={i}
+                        x={
+                          (object.endPointX + object.startPointX) / 2 +
+                          wallWidth / 1.5
+                        }
+                        y={
+                          (object.endPointY + object.startPointY) / 2 +
+                          wallWidth / 1.5
+                        }
+                        text={calculateLineLength(
+                          object.startPointX,
+                          object.endPointX,
+                          object.startPointY,
+                          object.endPointY,
+                          'meters'
+                        )}
+                      />
+                    )
+                )}
+                <Line></Line>
+              </Layer>
+            </StageContext.Provider>
+          </Stage>
+        )}
+      </StageContext.Consumer>
       {objects.map(
         (object, i) =>
           object.type === 'TEXT' && (
@@ -509,23 +481,7 @@ const MyStage = () => {
             />
           )
       )}
-      <div
-        style={{
-          boxShadow: '2px 2px 3px #ccc',
-          width: `${GridSize * scale}px`,
-          height: '20px',
-          color: 'white',
-          backgroundColor: '#ff73fd',
-          borderRadius: '4px',
-          marginRight: '10px',
-          position: 'absolute',
-          left: window.innerWidth - 100,
-          top: window.innerHeight - 50,
-          textAlign: 'center',
-        }}
-      >
-        1 m
-      </div>
+      {isStageVisable && <ScaleBar gridSize={gridSize} />}
     </div>
   );
 };

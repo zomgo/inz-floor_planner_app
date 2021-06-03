@@ -18,26 +18,26 @@ export const calculateLineLength = (x1, x2, y1, y2, option = null) => {
   return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 };
 
-export const findClosestEndPoint = (point, walls) => {
-  if (walls.filter(wall => wall.type === 'WALL').length === 0) {
+export const findClosestEndPoint = (point, objects) => {
+  if (objects.filter(object => object.type === 'WALL').length === 0) {
     return;
   }
-  let res = walls
-    .filter(wall => wall.type === 'WALL')
-    .map(wall => {
+  let res = objects
+    .filter(object => object.type === 'WALL')
+    .map(object => {
       return {
         dStart: Math.sqrt(
-          Math.pow(wall.startPointX - point.x, 2) +
-            Math.pow(wall.startPointY - point.y, 2)
+          Math.pow(object.startPointX - point.x, 2) +
+            Math.pow(object.startPointY - point.y, 2)
         ),
         dEnd: Math.sqrt(
-          Math.pow(wall.endPointX - point.x, 2) +
-            Math.pow(wall.endPointY - point.y, 2)
+          Math.pow(object.endPointX - point.x, 2) +
+            Math.pow(object.endPointY - point.y, 2)
         ),
-        startPointX: wall.startPointX,
-        startPointY: wall.startPointY,
-        endPointX: wall.endPointX,
-        endPointY: wall.endPointY,
+        startPointX: object.startPointX,
+        startPointY: object.startPointY,
+        endPointX: object.endPointX,
+        endPointY: object.endPointY,
       };
     });
   const newRes = array => {
@@ -85,29 +85,29 @@ export const findClosestEndPoint = (point, walls) => {
   return closestPoint;
 };
 
-export const findClosestWall = (point, walls) => {
-  if (walls.length === 0) {
+export const findClosestWall = (point, objects) => {
+  if (objects.filter(o => o.type === 'WALL').length === 0) {
     return;
   }
-  let res = walls
-    .filter(wall => wall.type === 'WALL')
-    .map(wall => {
+  let res = objects
+    .filter(object => object.type === 'WALL')
+    .map(object => {
       return {
-        middleX: (wall.startPointX + wall.endPointX) / 2,
-        middleY: (wall.startPointY + wall.endPointY) / 2,
-        x: wall.startPointX,
-        y: wall.startPointY,
-        endX: wall.endPointX,
-        endY: wall.endPointY,
+        middleX: (object.startPointX + object.endPointX) / 2,
+        middleY: (object.startPointY + object.endPointY) / 2,
+        x: object.startPointX,
+        y: object.startPointY,
+        endX: object.endPointX,
+        endY: object.endPointY,
       };
     })
-    .map(wall => {
+    .map(object => {
       return {
         distance: Math.sqrt(
-          Math.pow(wall.middleX - point.x, 2) +
-            Math.pow(wall.middleY - point.y, 2)
+          Math.pow(object.middleX - point.x, 2) +
+            Math.pow(object.middleY - point.y, 2)
         ),
-        ...wall,
+        ...object,
       };
     })
     .reduce((prev, curr) => {
