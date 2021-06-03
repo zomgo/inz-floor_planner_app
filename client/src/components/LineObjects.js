@@ -2,15 +2,9 @@ import React from 'react';
 import { useContext } from 'react';
 import StageContext from '../store/stage-context';
 import { Line } from 'react-konva';
-const DrawableObject = props => {
+const LineObjects = props => {
   const stageContext = useContext(StageContext);
-  const { objects, setObjects, setHistoryPosition } = stageContext;
-
-  const onDbClickHandler = currentObject => e => {
-    let state = [...objects].filter(o => o.index !== currentObject.index);
-    setHistoryPosition(prevState => prevState - 1);
-    setObjects(state);
-  };
+  const { objects } = stageContext;
 
   return objects.map(
     (object, i) =>
@@ -26,10 +20,10 @@ const DrawableObject = props => {
           stroke={props.color}
           strokeWidth={props.width}
           opacity={props.opacity}
-          onDblClick={onDbClickHandler(object)}
+          onDblClick={e => props.onDblClick(e, object)}
         />
       )
   );
 };
 
-export default DrawableObject;
+export default LineObjects;

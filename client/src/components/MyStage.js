@@ -9,10 +9,10 @@ import {
   findClosestWall,
   pointToSnapWall,
   generateGrdiLayer,
-  calculateLineLength,
 } from '../functions.js';
 import ScaleBar from './ScaleBar';
-import DrawableObject from './DrawableObject';
+import LineObjects from './LineObjects';
+import TextObjects from './TextObjects';
 
 const gridSize = 50;
 const stageWidth = 2000;
@@ -315,15 +315,6 @@ const MyStage = () => {
     }
   };
 
-  const onDragEndTextHandler = currentObject => e => {
-    let state = [...objects];
-    let [updatedText] = state.filter(o => o.index === currentObject.index);
-    updatedText.x = e.currentTarget.position().x;
-    updatedText.y = e.currentTarget.position().y;
-    state[currentObject.index] = updatedText;
-    setObjects(state);
-  };
-
   const onMouseUpHandler = event => {
     if (
       isDrawing &&
@@ -360,8 +351,16 @@ const MyStage = () => {
     state[currentObject.index] = updatedText;
     setObjects(state);
   };
+  function onDragEndTextHandler(e, currentObject) {
+    let state = [...objects];
+    let [updatedText] = state.filter(o => o.index === currentObject.index);
+    updatedText.x = e.currentTarget.position().x;
+    updatedText.y = e.currentTarget.position().y;
+    state[currentObject.index] = updatedText;
+    setObjects(state);
+  }
 
-  const onClickTextHandler = currentObject => e => {
+  function onClickTextHandler(e, currentObject) {
     const position = e.currentTarget.getAbsolutePosition();
     let state = [...objects];
     let [updatedText] = state.filter(o => o.index === currentObject.index);
@@ -370,13 +369,13 @@ const MyStage = () => {
     updatedText.textAreaY = position.y;
     state[currentObject.index] = updatedText;
     setObjects(state);
-  };
-  const onDbClickHandler = currentObject => e => {
-    console.log('hi');
+  }
+
+  function onDblClickHandler(e, currentObject) {
     let state = [...objects].filter(o => o.index !== currentObject.index);
-    setHistoryPosition(prevState => prevState - 1);
+    setHistoryPosition(objects.length - 1);
     setObjects(state);
-  };
+  }
 
   return (
     <div>
@@ -403,61 +402,35 @@ const MyStage = () => {
             <Layer listening={false}>{grid}</Layer>
             <StageContext.Provider value={value}>
               <Layer>
-                <DrawableObject type='WALL' color='#4c4c4c' width={wallWidth} />
-                <DrawableObject
+                <LineObjects
+                  type='WALL'
+                  color='#4c4c4c'
+                  width={wallWidth}
+                  onDblClick={onDblClickHandler}
+                />
+                <LineObjects
                   type='WINDOW'
                   opacity={0.9}
                   color='white'
                   width={wallWidth / 3}
+                  onDblClick={onDblClickHandler}
                 />
-                <DrawableObject
+                <LineObjects
                   type='DOOR'
                   color='#d4d4d4'
                   width={wallWidth / 1.5}
+                  onDblClick={onDblClickHandler}
                 />
-                {objects.map(
-                  (object, i) =>
-                    object.type === 'TEXT' && (
-                      <Text
-                        key={i}
-                        fontSize={20}
-                        align={'left'}
-                        fontStyle={20}
-                        draggable
-                        text={object.text}
-                        x={object.x}
-                        y={object.y}
-                        wrap='word'
-                        onDragEnd={onDragEndTextHandler(object)}
-                        onClick={onClickTextHandler(object)}
-                        onDblClick={onDbClickHandler(object)}
-                      />
-                    )
-                )}
-                {objects.map(
-                  (object, i) =>
-                    object.type === 'WALL' && (
-                      <Text
-                        key={i}
-                        x={
-                          (object.endPointX + object.startPointX) / 2 +
-                          wallWidth / 1.5
-                        }
-                        y={
-                          (object.endPointY + object.startPointY) / 2 +
-                          wallWidth / 1.5
-                        }
-                        text={calculateLineLength(
-                          object.startPointX,
-                          object.endPointX,
-                          object.startPointY,
-                          object.endPointY,
-                          'meters'
-                        )}
-                      />
-                    )
-                )}
-                <Line></Line>
+                <TextObjects
+                  type='TEXT'
+                  fontSize={20}
+                  align='left'
+                  width={100}
+                  onDragEnd={onDragEndTextHandler}
+                  onClick={onClickTextHandler}
+                  onDblClick={onDblClickHandler}
+                />
+                <TextObjects type='WALL' fontSize={10} wallWidth={wallWidth} />
               </Layer>
             </StageContext.Provider>
           </Stage>
