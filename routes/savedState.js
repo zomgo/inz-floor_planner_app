@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-
 const SavedState = require('../models/SavedState');
 
 // @route POST api/savedState
@@ -21,7 +20,6 @@ router.post('/', async (req, res) => {
     res.status(500).send('Server Error');
   }
 });
-
 // @route GET api/savedState
 // @desc load state
 router.get('/:id', async (req, res) => {

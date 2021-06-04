@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Stage, Layer, Line } from 'react-konva';
+import { Stage, Layer, Line, Rect } from 'react-konva';
 import { useContext } from 'react';
 import StageContext from '../store/stage-context';
 import { v4 as uuidv4 } from 'uuid';
@@ -13,6 +13,7 @@ import {
 import ScaleBar from './ScaleBar';
 import LineObjects from './LineObjects';
 import TextObjects from './TextObjects';
+import useImage from 'use-image';
 
 const gridSize = 50;
 const stageWidth = 2000;
@@ -43,7 +44,6 @@ const MyStage = () => {
   const [stagePosition, setStagePosition] = useState({ x: 0, y: 0 });
   const [isDrawing, setIsDrawing] = useState(false);
   const [grid, setGrid] = useState();
-
   const onWheelHandler = event => {
     event.evt.preventDefault();
 
@@ -67,6 +67,7 @@ const MyStage = () => {
       y: (stage.getPointerPosition().y / newScale - mousePointTo.y) * newScale,
     });
   };
+  const [stairsFill] = useImage('https://i.imgur.com/TWT3IGM.jpg');
 
   useEffect(() => {
     const gridLayer = generateGrdiLayer(
@@ -175,6 +176,17 @@ const MyStage = () => {
         },
       ]);
     }
+    if (action === 'STAIRS') {
+      setObjects([
+        ...objects,
+        {
+          x: Math.round(pointerPosition.x),
+          y: Math.round(pointerPosition.y),
+          type: action,
+          index: uuidv4(),
+        },
+      ]);
+    }
   };
 
   const onMouseMoveHandler = event => {
@@ -228,15 +240,6 @@ const MyStage = () => {
         currentObject.endPointX = Math.round(point.x);
         currentObject.endPointY = Math.round(point.y);
       }
-
-      //   currentObject.endPointX =
-      //     point.x +
-      //     Math.abs(point.x - currentObject.startPointX) *
-      //       Math.cos((45 * Math.PI) / 180);
-      //   currentObject.endPointY =
-      //     point.y +
-      //     Math.abs(point.y - currentObject.startPointY) *
-      //       Math.cos((45 * Math.PI) / 180);
 
       updateObjectsState(currentObject);
     }
@@ -314,6 +317,38 @@ const MyStage = () => {
         currentObject.endPointY = Math.round(point.y - doorWidth / 2);
       }
 
+      updateObjectsState(currentObject);
+    }
+
+    if (action === 'STAIRS') {
+      let newAngle = Math.round(
+        calculateDegreeBetweenPoints(
+          currentObject.x,
+          currentObject.y,
+          point.x,
+          point.y
+        )
+      );
+      if (newAngle > 180 - wallSnapDegree || newAngle < -180 + wallSnapDegree) {
+        newAngle = 180;
+      } else if (
+        newAngle < 90 + wallSnapDegree &&
+        newAngle > 90 - wallSnapDegree
+      ) {
+        newAngle = 90;
+      } else if (
+        newAngle > -90 - wallSnapDegree &&
+        newAngle < -90 + wallSnapDegree
+      ) {
+        newAngle = -90;
+      } else if (
+        newAngle > 0 - wallSnapDegree &&
+        newAngle < 0 + wallSnapDegree
+      ) {
+        newAngle = 0;
+      }
+
+      currentObject.angle = newAngle;
       updateObjectsState(currentObject);
     }
   };
@@ -434,6 +469,21 @@ const MyStage = () => {
                   width={wallWidth / 1.5}
                   onDblClick={onDblClickHandler}
                 />
+                {objects.map(
+                  (object, i) =>
+                    object.type === 'STAIRS' && (
+                      <Rect
+                        key={i}
+                        x={object.x}
+                        y={object.y}
+                        width={80}
+                        height={160}
+                        rotation={object.angle}
+                        //fill='red'
+                        fillPatternImage={stairsFill}
+                      />
+                    )
+                )}
                 <TextObjects
                   type='TEXT'
                   fontSize={20}

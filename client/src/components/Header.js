@@ -128,7 +128,6 @@ const Header = () => {
           loading={isLoading}
         />
       )}
-      {/* {isSaveModalOpen && <Backdrop onCancel={closeModalHandler} />} */}
       {isLoadModalOpen && (
         <LoadModal
           text='Wprowadź kod projektu: '

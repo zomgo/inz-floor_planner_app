@@ -21,6 +21,9 @@ const ToolBar = () => {
   const setTextAction = () => {
     setAction('TEXT');
   };
+  const SetStairsAction = () => {
+    setAction('STAIRS');
+  };
   return (
     <div className={classes.toolBar}>
       {isStageVisable && (
@@ -43,6 +46,11 @@ const ToolBar = () => {
           <li>
             <button className={classes.button} onClick={setDoorAction}>
               Drzwi
+            </button>
+          </li>
+          <li>
+            <button className={classes.button} onClick={SetStairsAction}>
+              Schody
             </button>
           </li>
           <li>
