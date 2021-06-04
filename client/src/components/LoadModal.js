@@ -1,4 +1,4 @@
-import classes from './SaveModal.module.css';
+import classes from './Modal.module.css';
 import { useContext, useRef, useState } from 'react';
 import StageContext from '../store/stage-context';
 import axios from 'axios';
@@ -28,7 +28,7 @@ const LoadModal = props => {
         `/api/savedState/${idInputRef.current.value}`
       );
       setObjects(res.data.objects);
-      setHistory(res.data.objects);
+      setHistory([res.data.objects]);
       setHistoryPosition(0);
       props.onCancel();
     } catch (err) {

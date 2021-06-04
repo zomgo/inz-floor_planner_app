@@ -320,7 +320,6 @@ const MyStage = () => {
 
   const onMouseUpHandler = event => {
     let currentObject = objects[objects.length - 1];
-
     const updateObjectsState = currentObject => {
       currentObject.listening = true;
       objects.splice(objects.length - 1, 1, currentObject);
@@ -334,15 +333,16 @@ const MyStage = () => {
       setHistory(updatedHistory);
       setHistoryPosition(objects.length - 1);
       setIsDrawing(false);
-      updateObjectsState(currentObject);
+      currentObject && updateObjectsState(currentObject);
       return;
     }
     if (isDrawing) {
       const updatedHistory = [...history, objects];
       setHistory(updatedHistory);
       setHistoryPosition(objects.length - 1);
+      currentObject && updateObjectsState(currentObject);
     }
-    updateObjectsState(currentObject);
+
     setIsDrawing(false);
   };
 

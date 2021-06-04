@@ -1,10 +1,10 @@
 import classes from './Header.module.css';
 import { useContext, useState } from 'react';
 import StageContext from '../store/stage-context';
-import SaveModal from './SaveModal';
 import LoadModal from './LoadModal';
 import axios from 'axios';
 import Backdrop from './Backdrop';
+import Modal from './Modal';
 
 const Header = () => {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
@@ -22,6 +22,8 @@ const Header = () => {
   const [savedStateId, setSavedStateId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
+  const [isClearConfirmationModalOpen, setIsClearConfirmationModalOpen] =
+    useState(false);
 
   const saveStateHandler = async () => {
     setIsSaveModalOpen(true);
@@ -41,18 +43,26 @@ const Header = () => {
     } catch (err) {}
   };
 
+  const clearStateButtonHandler = () => {
+    setIsStageVisable(false);
+    setIsClearConfirmationModalOpen(true);
+  };
+
   const loadStateHandler = async id => {
     setIsStageVisable(false);
     setIsLoadModalOpen(true);
   };
 
   const closeModalHandler = () => {
+    setIsClearConfirmationModalOpen(false);
     setIsSaveModalOpen(false);
     setIsLoadModalOpen(false);
     setIsStageVisable(true);
   };
 
   const clearStateHandler = () => {
+    setIsClearConfirmationModalOpen(false);
+    setIsStageVisable(true);
     setObjects([]);
     setHistory([]);
     setHistoryPosition(0);
@@ -88,7 +98,7 @@ const Header = () => {
     <header className={classes.header}>
       <div>
         <ul>
-          <button className={classes.button} onClick={clearStateHandler}>
+          <button className={classes.button} onClick={clearStateButtonHandler}>
             Nowy Projekt
           </button>
           <button className={classes.button} onClick={saveStateHandler}>
@@ -111,21 +121,30 @@ const Header = () => {
         </button>
       </ul>
       {isSaveModalOpen && (
-        <SaveModal
+        <Modal
           text='Kod projektu:'
-          onConfirm={closeModalHandler}
+          confirmHandler={closeModalHandler}
           id={savedStateId}
           loading={isLoading}
         />
       )}
-      {isSaveModalOpen && <Backdrop onCancel={closeModalHandler} />}
+      {/* {isSaveModalOpen && <Backdrop onCancel={closeModalHandler} />} */}
       {isLoadModalOpen && (
         <LoadModal
           text='Wprowadź kod projektu: '
           onCancel={closeModalHandler}
         />
       )}
-      {isLoadModalOpen && <Backdrop onCancel={closeModalHandler} />}
+      {isClearConfirmationModalOpen && (
+        <Modal
+          confirmHandler={clearStateHandler}
+          text='Jesteś pewien ?'
+          cancelHandler={closeModalHandler}
+        />
+      )}
+      {(isLoadModalOpen || isClearConfirmationModalOpen || isSaveModalOpen) && (
+        <Backdrop onCancel={closeModalHandler} />
+      )}
     </header>
   );
 };
