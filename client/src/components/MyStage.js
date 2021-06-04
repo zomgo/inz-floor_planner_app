@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Stage, Layer, Line, Text } from 'react-konva';
+import { Stage, Layer, Line } from 'react-konva';
 import { useContext } from 'react';
 import StageContext from '../store/stage-context';
 import { v4 as uuidv4 } from 'uuid';
@@ -116,6 +116,7 @@ const MyStage = () => {
               endPointX: Math.round(pointerPosition.x),
               endPointY: Math.round(pointerPosition.y),
               type: action,
+              listening: true,
               index: uuidv4(),
             },
           ]);
@@ -143,6 +144,7 @@ const MyStage = () => {
           endPointX: Math.round(pointerPosition.x) + windowWidth / 2,
           endPointY: Math.round(pointerPosition.y),
           type: action,
+          listening: false,
           index: uuidv4(),
         },
       ]);
@@ -156,6 +158,7 @@ const MyStage = () => {
           endPointX: Math.round(pointerPosition.x) + doorWidth / 2,
           endPointY: Math.round(pointerPosition.y),
           type: action,
+          listening: false,
           index: uuidv4(),
         },
       ]);
@@ -186,6 +189,7 @@ const MyStage = () => {
     const stage = event.target.getStage();
     const point = stage.getRelativePointerPosition();
     let currentObject = objects[objects.length - 1];
+
     if (action === 'WALL') {
       const degreesBetweenStartAndEnd = Math.abs(
         calculateDegreeBetweenPoints(
@@ -271,7 +275,6 @@ const MyStage = () => {
         currentObject.startPointY = point.y + windowWidth / 2;
         currentObject.endPointY = point.y - windowWidth / 2;
       }
-
       updateObjectsState(currentObject);
     }
     if (action === 'DOOR') {
@@ -316,6 +319,13 @@ const MyStage = () => {
   };
 
   const onMouseUpHandler = event => {
+    let currentObject = objects[objects.length - 1];
+
+    const updateObjectsState = currentObject => {
+      currentObject.listening = true;
+      objects.splice(objects.length - 1, 1, currentObject);
+      setObjects(objects.concat());
+    };
     if (
       isDrawing &&
       (history.length > objects.length || history.length === objects.length)
@@ -324,6 +334,7 @@ const MyStage = () => {
       setHistory(updatedHistory);
       setHistoryPosition(objects.length - 1);
       setIsDrawing(false);
+      updateObjectsState(currentObject);
       return;
     }
     if (isDrawing) {
@@ -331,6 +342,7 @@ const MyStage = () => {
       setHistory(updatedHistory);
       setHistoryPosition(objects.length - 1);
     }
+    updateObjectsState(currentObject);
     setIsDrawing(false);
   };
 
@@ -351,6 +363,7 @@ const MyStage = () => {
     state[currentObject.index] = updatedText;
     setObjects(state);
   };
+
   function onDragEndTextHandler(e, currentObject) {
     let state = [...objects];
     let [updatedText] = state.filter(o => o.index === currentObject.index);
@@ -373,7 +386,7 @@ const MyStage = () => {
 
   function onDblClickHandler(e, currentObject) {
     let state = [...objects].filter(o => o.index !== currentObject.index);
-    setHistoryPosition(objects.length - 1);
+    setHistoryPosition(history.length);
     setObjects(state);
   }
 

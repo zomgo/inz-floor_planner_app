@@ -17,10 +17,12 @@ const LineObjects = props => {
             object.endPointX,
             object.endPointY,
           ]}
+          listening={object.listening}
           stroke={props.color}
           strokeWidth={props.width}
           opacity={props.opacity}
           onDblClick={e => props.onDblClick(e, object)}
+          // onClick={props.onClick && (e => props.onClick(e, object))}
         />
       )
   );

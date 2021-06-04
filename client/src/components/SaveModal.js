@@ -13,7 +13,7 @@ const SaveModal = props => {
         className={classes.input}
         type='text'
         id='id'
-        defaultValue={props.id ? props.id : 'saving'}
+        defaultValue={props.id}
       />
       <button
         onClick={() => {
