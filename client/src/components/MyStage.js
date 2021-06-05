@@ -14,6 +14,7 @@ import ScaleBar from './ScaleBar';
 import LineObjects from './LineObjects';
 import TextObjects from './TextObjects';
 import useImage from 'use-image';
+import RectObjects from './RectObjects';
 
 const gridSize = 50;
 const stageWidth = 2000;
@@ -27,6 +28,8 @@ const windowWidth = 114;
 const doorWidth = 80;
 const wallSnapDistance = 30;
 const wallSnapDegree = 10;
+const stairsWidth = 80;
+const stairsHeight = 160;
 
 const MyStage = () => {
   const stageContext = useContext(StageContext);
@@ -420,6 +423,7 @@ const MyStage = () => {
   }
 
   function onDblClickHandler(e, currentObject) {
+    console.log('hi');
     let state = [...objects].filter(o => o.index !== currentObject.index);
     setHistoryPosition(history.length);
     setObjects(state);
@@ -469,21 +473,13 @@ const MyStage = () => {
                   width={wallWidth / 1.5}
                   onDblClick={onDblClickHandler}
                 />
-                {objects.map(
-                  (object, i) =>
-                    object.type === 'STAIRS' && (
-                      <Rect
-                        key={i}
-                        x={object.x}
-                        y={object.y}
-                        width={80}
-                        height={160}
-                        rotation={object.angle}
-                        //fill='red'
-                        fillPatternImage={stairsFill}
-                      />
-                    )
-                )}
+                <RectObjects
+                  type='STAIRS'
+                  width={stairsWidth}
+                  height={stairsHeight}
+                  fillPatternImage={stairsFill}
+                  onDblClick={onDblClickHandler}
+                />
                 <TextObjects
                   type='TEXT'
                   fontSize={20}
