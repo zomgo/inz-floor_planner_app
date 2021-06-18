@@ -5,7 +5,16 @@ import classes from './ToolBar.module.css';
 
 const ToolBar = () => {
   const stageContext = useContext(StageContext);
-  const { setAction, isStageVisable } = stageContext;
+  const { setAction, isStageVisable, objects } = stageContext;
+
+  const noWalls = () => {
+    if (objects.filter(object => object.type === 'WALL').length === 0) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   const setDrawWallAction = () => {
     setAction('WALL');
   };
@@ -13,9 +22,17 @@ const ToolBar = () => {
     setAction('SELECT');
   };
   const setWindowAction = () => {
+    if (noWalls()) {
+      setAction('SELECT');
+      return;
+    }
     setAction('WINDOW');
   };
   const setDoorAction = () => {
+    if (noWalls()) {
+      setAction('SELECT');
+      return;
+    }
     setAction('DOOR');
   };
   const setTextAction = () => {

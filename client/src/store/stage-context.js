@@ -7,12 +7,14 @@ const StageContext = createContext({
   scale: 1,
   history: [],
   historyPosition: 0,
+  stagePosition: { x: 0, y: 0 },
   setHistoryPosition: number => {},
   setHistory: object => {},
   setAction: action => {},
   setObjects: currentWall => {},
   setIsStageVisable: value => {},
   setScale: scale => {},
+  setStagePosition: position => {},
 });
 
 export function StageContextProvider(props) {
@@ -22,6 +24,7 @@ export function StageContextProvider(props) {
   const [scale, setScale] = useState(1);
   const [history, setHistory] = useState([]);
   const [historyPosition, setHistoryPosition] = useState(0);
+  const [stagePosition, setStagePosition] = useState({ x: 0, y: 0 });
 
   function setActionHandler(action) {
     setAction(action);
@@ -40,26 +43,15 @@ export function StageContextProvider(props) {
   };
 
   const setHistoryHandler = objects => {
-    // if (option === true) {
-    //   setHistory(objects);
-    //   return;
-    // }
-    // if (history && history.length >= objects.length) {
-    //   let temp = history.slice(0, objects.length - 1);
-    //   temp.concat(objects);
-    //   setHistory(temp);
-    //   return;
-    // }
-    // if (objects === undefined) {
-    //   setHistory([]);
-    //   return;
-    // }
-    // setHistory([...history, objects]);
     setHistory(objects);
   };
 
   const setHistoryPositionHandler = number => {
     setHistoryPosition(number);
+  };
+
+  const setStagePositionHandler = position => {
+    setStagePosition(position);
   };
 
   const context = {
@@ -69,12 +61,14 @@ export function StageContextProvider(props) {
     scale: scale,
     history: history,
     historyPosition: historyPosition,
+    stagePosition: stagePosition,
     setHistoryPosition: setHistoryPositionHandler,
     setHistory: setHistoryHandler,
     setScale: setScaleHandler,
     setObjects: setObjectsHandler,
     setAction: setActionHandler,
     setIsStageVisable: setIsStageVisableHandler,
+    setStagePosition: setStagePositionHandler,
   };
 
   return (

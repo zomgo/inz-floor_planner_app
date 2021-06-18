@@ -18,6 +18,7 @@ const Header = () => {
     historyPosition,
     setHistoryPosition,
     setHistory,
+    setStagePosition,
   } = stageContext;
   const [savedStateId, setSavedStateId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -70,6 +71,7 @@ const Header = () => {
 
   const resetScaleHandler = () => {
     setScale(1);
+    setStagePosition({ x: 0, y: 0 });
   };
 
   const undoHandler = () => {
@@ -111,7 +113,7 @@ const Header = () => {
       </div>
       <ul>
         <button className={classes.button} onClick={resetScaleHandler}>
-          Resetuj zoom
+          Resetuj widok
         </button>
         <button className={classes.button} onClick={undoHandler}>
           Undo

@@ -1,5 +1,5 @@
 import Header from './components/Header';
-import MyStage from './components/MyStage';
+import MyStage from './components/Stage';
 import ToolBar from './components/ToolBar';
 function App() {
   return (

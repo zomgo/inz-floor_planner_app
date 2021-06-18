@@ -19,6 +19,8 @@ const RectObjects = props => {
           rotation={object.angle}
           fillPatternImage={props.fillPatternImage}
           opacity={props.opacity}
+          draggable
+          onDragEnd={e => props.onDragEnd(e, object)}
           onDblClick={e => props.onDblClick(e, object)}
         />
       )

@@ -2,7 +2,7 @@ import React from 'react';
 import { useContext } from 'react';
 import StageContext from '../store/stage-context';
 import { Text } from 'react-konva';
-import { calculateLineLength } from '../functions.js';
+import { calculateLineLength } from './stageHelpers.js';
 const TextObjects = props => {
   const stageContext = useContext(StageContext);
   const { objects } = stageContext;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Stage, Layer, Line, Rect } from 'react-konva';
+import { Stage, Layer, Line } from 'react-konva';
 import { useContext } from 'react';
 import StageContext from '../store/stage-context';
 import { v4 as uuidv4 } from 'uuid';
@@ -9,7 +9,7 @@ import {
   findClosestWall,
   pointToSnapWall,
   generateGrdiLayer,
-} from '../functions.js';
+} from './stageHelpers.js';
 import ScaleBar from './ScaleBar';
 import LineObjects from './LineObjects';
 import TextObjects from './TextObjects';
@@ -43,8 +43,11 @@ const MyStage = () => {
     history,
     setHistory,
     setHistoryPosition,
+    setAction,
+    stagePosition,
+    setStagePosition,
   } = stageContext;
-  const [stagePosition, setStagePosition] = useState({ x: 0, y: 0 });
+  // const [stagePosition, setStagePosition] = useState({ x: 0, y: 0 });
   const [isDrawing, setIsDrawing] = useState(false);
   const [grid, setGrid] = useState();
   const onWheelHandler = event => {
@@ -382,6 +385,9 @@ const MyStage = () => {
     }
 
     setIsDrawing(false);
+    if (action === 'TEXT') {
+      setAction('SELECT');
+    }
   };
 
   const handleTextareaKeyDown = currentObject => e => {
@@ -402,7 +408,7 @@ const MyStage = () => {
     setObjects(state);
   };
 
-  function onDragEndTextHandler(e, currentObject) {
+  function onDragEndHandler(e, currentObject) {
     let state = [...objects];
     let [updatedText] = state.filter(o => o.index === currentObject.index);
     updatedText.x = e.currentTarget.position().x;
@@ -423,10 +429,11 @@ const MyStage = () => {
   }
 
   function onDblClickHandler(e, currentObject) {
-    console.log('hi');
-    let state = [...objects].filter(o => o.index !== currentObject.index);
-    setHistoryPosition(history.length);
-    setObjects(state);
+    if (action === 'SELECT') {
+      let state = [...objects].filter(o => o.index !== currentObject.index);
+      setHistoryPosition(history.length);
+      setObjects(state);
+    }
   }
 
   return (
@@ -479,13 +486,14 @@ const MyStage = () => {
                   height={stairsHeight}
                   fillPatternImage={stairsFill}
                   onDblClick={onDblClickHandler}
+                  onDragEnd={onDragEndHandler}
                 />
                 <TextObjects
                   type='TEXT'
                   fontSize={20}
                   align='left'
                   width={100}
-                  onDragEnd={onDragEndTextHandler}
+                  onDragEnd={onDragEndHandler}
                   onClick={onClickTextHandler}
                   onDblClick={onDblClickHandler}
                 />
