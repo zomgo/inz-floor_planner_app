@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Stage, Layer, Line } from 'react-konva';
 import { useContext } from 'react';
 import StageContext from '../store/stage-context';
