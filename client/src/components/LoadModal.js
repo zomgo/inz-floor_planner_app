@@ -32,7 +32,7 @@ const LoadModal = props => {
       setHistoryPosition(0);
       props.onCancel();
     } catch (err) {
-      props.onCancel();
+      setIsIdValid(false);
     }
   };
 
