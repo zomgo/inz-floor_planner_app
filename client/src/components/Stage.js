@@ -11,10 +11,10 @@ import {
   generateGrdiLayer,
 } from './stageHelpers.js';
 import ScaleBar from './ScaleBar';
-import LineObjects from './LineObjects';
-import TextObjects from './TextObjects';
+import LineObject from './LineObject';
+import TextObject from './TextObject';
 import useImage from 'use-image';
-import RectObjects from './RectObjects';
+import RectObject from './RectObject';
 
 const gridSize = 50;
 const stageWidth = 2000;
@@ -461,26 +461,26 @@ const MyStage = () => {
             <Layer listening={false}>{grid}</Layer>
             <StageContext.Provider value={value}>
               <Layer>
-                <LineObjects
+                <LineObject
                   type='WALL'
                   color='#4c4c4c'
                   width={wallWidth}
                   onDblClick={onDblClickHandler}
                 />
-                <LineObjects
+                <LineObject
                   type='WINDOW'
                   opacity={0.9}
                   color='white'
                   width={wallWidth / 3}
                   onDblClick={onDblClickHandler}
                 />
-                <LineObjects
+                <LineObject
                   type='DOOR'
                   color='#d4d4d4'
                   width={wallWidth / 1.5}
                   onDblClick={onDblClickHandler}
                 />
-                <RectObjects
+                <RectObject
                   type='STAIRS'
                   width={stairsWidth}
                   height={stairsHeight}
@@ -488,7 +488,7 @@ const MyStage = () => {
                   onDblClick={onDblClickHandler}
                   onDragEnd={onDragEndHandler}
                 />
-                <TextObjects
+                <TextObject
                   type='TEXT'
                   fontSize={20}
                   align='left'
@@ -497,7 +497,7 @@ const MyStage = () => {
                   onClick={onClickTextHandler}
                   onDblClick={onDblClickHandler}
                 />
-                <TextObjects type='WALL' fontSize={10} wallWidth={wallWidth} />
+                {/* <TextObject type='WALL' fontSize={10} wallWidth={wallWidth} /> */}
               </Layer>
             </StageContext.Provider>
           </Stage>

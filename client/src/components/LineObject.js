@@ -2,7 +2,7 @@ import React from 'react';
 import { useContext } from 'react';
 import StageContext from '../store/stage-context';
 import { Line } from 'react-konva';
-const LineObjects = props => {
+const LineObject = props => {
   const stageContext = useContext(StageContext);
   const { objects } = stageContext;
 
@@ -27,4 +27,4 @@ const LineObjects = props => {
   );
 };
 
-export default LineObjects;
+export default LineObject;

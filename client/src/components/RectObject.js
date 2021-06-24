@@ -2,7 +2,7 @@ import React from 'react';
 import { useContext } from 'react';
 import StageContext from '../store/stage-context';
 import { Rect } from 'react-konva';
-const RectObjects = props => {
+const RectObject = props => {
   const stageContext = useContext(StageContext);
   const { objects } = stageContext;
 
@@ -27,4 +27,4 @@ const RectObjects = props => {
   );
 };
 
-export default RectObjects;
+export default RectObject;
