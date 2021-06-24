@@ -97,8 +97,8 @@ export const findClosestWall = (point, objects) => {
         middleY: (object.startPointY + object.endPointY) / 2,
         x: object.startPointX,
         y: object.startPointY,
-        endX: object.endPointX,
-        endY: object.endPointY,
+        endPointX: object.endPointX,
+        endPointY: object.endPointY,
       };
     })
     .map(object => {

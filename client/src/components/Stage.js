@@ -274,8 +274,8 @@ const MyStage = () => {
           calculateDegreeBetweenPoints(
             closestEndPoint.x,
             closestEndPoint.y,
-            closestEndPoint.endX,
-            closestEndPoint.endY
+            closestEndPoint.endPointX,
+            closestEndPoint.endPointY
           )
         ) === 90
       ) {
@@ -312,8 +312,8 @@ const MyStage = () => {
           calculateDegreeBetweenPoints(
             closestEndPoint.x,
             closestEndPoint.y,
-            closestEndPoint.endX,
-            closestEndPoint.endY
+            closestEndPoint.endPointX,
+            closestEndPoint.endPointY
           )
         ) === 90
       ) {
