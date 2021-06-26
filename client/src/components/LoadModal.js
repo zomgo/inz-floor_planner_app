@@ -49,7 +49,8 @@ const LoadModal = props => {
           ref={idInputRef}
         />
         <br />
-        {!isIdValid && <p style={{ color: 'red' }}>Nieprawidłowy kod</p>}
+        {!isIdValid && <div style={{ color: 'red' }}>Nieprawidłowy kod</div>}
+        <br />
         <button
           type='button'
           className={classes.button}

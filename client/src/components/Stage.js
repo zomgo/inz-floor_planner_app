@@ -47,7 +47,6 @@ const MyStage = () => {
     stagePosition,
     setStagePosition,
   } = stageContext;
-  // const [stagePosition, setStagePosition] = useState({ x: 0, y: 0 });
   const [isDrawing, setIsDrawing] = useState(false);
   const [grid, setGrid] = useState();
   const onWheelHandler = event => {
@@ -200,7 +199,6 @@ const MyStage = () => {
       objects.splice(objects.length - 1, 1, currentObject);
       setObjects(objects.concat());
     };
-
     if (!isDrawing) {
       return;
     }
@@ -249,11 +247,7 @@ const MyStage = () => {
 
       updateObjectsState(currentObject);
     }
-    if (action === 'WINDOW') {
-      if (objects.filter(o => o.type === 'WALL').length === 0) {
-        setObjects([]);
-        return;
-      }
+    if (action === 'WINDOW' || action === 'DOOR') {
       const closestEndPoint = findClosestWall(point, objects);
       if (event.target.getClassName() === Line) {
         closestEndPoint.x = event.target.getPoints()[0];
@@ -261,9 +255,13 @@ const MyStage = () => {
         closestEndPoint.endPointX = event.target.getPoints()[2];
         closestEndPoint.endPointY = event.target.getPoints()[3];
       }
-      currentObject.endPointX = Math.round(point.x) + windowWidth / 2;
+      currentObject.endPointX =
+        Math.round(point.x) +
+        (action === 'WINDOW' ? windowWidth / 2 : doorWidth / 2);
       currentObject.endPointY = Math.round(point.y);
-      currentObject.startPointX = Math.round(point.x) - windowWidth / 2;
+      currentObject.startPointX =
+        Math.round(point.x) -
+        (action === 'WINDOW' ? windowWidth / 2 : doorWidth / 2);
       currentObject.startPointY = Math.round(point.y);
 
       currentObject.endPointY = closestEndPoint.y;
@@ -281,50 +279,48 @@ const MyStage = () => {
       ) {
         currentObject.startPointX = closestEndPoint.x;
         currentObject.endPointX = closestEndPoint.x;
-        currentObject.startPointY = point.y + windowWidth / 2;
-        currentObject.endPointY = point.y - windowWidth / 2;
+        currentObject.startPointY =
+          point.y + (action === 'WINDOW' ? windowWidth / 2 : doorWidth / 2);
+        currentObject.endPointY =
+          point.y - (action === 'WINDOW' ? windowWidth / 2 : doorWidth / 2);
       }
       updateObjectsState(currentObject);
     }
-    if (action === 'DOOR') {
-      if (objects.filter(o => o.type === 'WALL').length === 0) {
-        setObjects([]);
-        return;
-      }
-      const closestEndPoint = findClosestWall(point, objects);
+    // if (action === 'DOOR') {
+    //   const closestEndPoint = findClosestWall(point, objects);
 
-      if (event.target.getClassName() === Line) {
-        closestEndPoint.x = event.target.getPoints()[0];
-        closestEndPoint.y = event.target.getPoints()[1];
-        closestEndPoint.endPointX = event.target.getPoints()[2];
-        closestEndPoint.endPointY = event.target.getPoints()[3];
-      }
-      currentObject.endPointX = Math.round(point.x) + doorWidth / 2;
-      currentObject.endPointY = Math.round(point.y);
-      currentObject.startPointX = Math.round(point.x) - doorWidth / 2;
-      currentObject.startPointY = Math.round(point.y);
+    //   if (event.target.getClassName() === Line) {
+    //     closestEndPoint.x = event.target.getPoints()[0];
+    //     closestEndPoint.y = event.target.getPoints()[1];
+    //     closestEndPoint.endPointX = event.target.getPoints()[2];
+    //     closestEndPoint.endPointY = event.target.getPoints()[3];
+    //   }
+    //   currentObject.endPointX = Math.round(point.x) + doorWidth / 2;
+    //   currentObject.endPointY = Math.round(point.y);
+    //   currentObject.startPointX = Math.round(point.x) - doorWidth / 2;
+    //   currentObject.startPointY = Math.round(point.y);
 
-      currentObject.endPointY = closestEndPoint.y;
-      currentObject.startPointY = closestEndPoint.y;
+    //   currentObject.endPointY = closestEndPoint.y;
+    //   currentObject.startPointY = closestEndPoint.y;
 
-      if (
-        Math.abs(
-          calculateDegreeBetweenPoints(
-            closestEndPoint.x,
-            closestEndPoint.y,
-            closestEndPoint.endPointX,
-            closestEndPoint.endPointY
-          )
-        ) === 90
-      ) {
-        currentObject.startPointX = closestEndPoint.x;
-        currentObject.endPointX = closestEndPoint.x;
-        currentObject.startPointY = Math.round(point.y + doorWidth / 2);
-        currentObject.endPointY = Math.round(point.y - doorWidth / 2);
-      }
+    //   if (
+    //     Math.abs(
+    //       calculateDegreeBetweenPoints(
+    //         closestEndPoint.x,
+    //         closestEndPoint.y,
+    //         closestEndPoint.endPointX,
+    //         closestEndPoint.endPointY
+    //       )
+    //     ) === 90
+    //   ) {
+    //     currentObject.startPointX = closestEndPoint.x;
+    //     currentObject.endPointX = closestEndPoint.x;
+    //     currentObject.startPointY = Math.round(point.y + doorWidth / 2);
+    //     currentObject.endPointY = Math.round(point.y - doorWidth / 2);
+    //   }
 
-      updateObjectsState(currentObject);
-    }
+    //   updateObjectsState(currentObject);
+    // }
 
     if (action === 'STAIRS') {
       let newAngle = Math.round(
@@ -435,74 +431,96 @@ const MyStage = () => {
       setObjects(state);
     }
   }
+  const test = (
+    <Stage
+      onMouseDown={onMouseDownHandler}
+      onMouseMove={onMouseMoveHandler}
+      onMouseUp={onMouseUpHandler}
+      //pozostałe atrybuty sceny
+    >
+      <Layer listening={false}>{grid}</Layer>
+      <Layer>
+        <LineObject
+          objects={objects}
+          type='WALL'
+          color='#4c4c4c'
+          width={wallWidth}
+          onDblClick={onDblClickHandler}
+          onWheel={onWheelHandler}
+          scaleX={scale}
+          scaleY={scale}
+        />
+        {/* pozostałe obiekty */}
+      </Layer>
+    </Stage>
+  );
 
   return (
     <div>
-      <StageContext.Consumer>
-        {value => (
-          <Stage
-            onContextMenu={e => e.evt.preventDefault()}
-            on
-            x={stagePosition.x}
-            y={stagePosition.y}
-            visible={isStageVisable}
-            width={stageWidth}
-            height={stageHeight}
-            onMouseDown={onMouseDownHandler}
-            onMouseMove={onMouseMoveHandler}
-            onMouseUp={onMouseUpHandler}
-            style={{ backgroundColor: '#f2eee5' }}
-            draggable={action === 'SELECT' ? true : false}
-            onDragEnd={e => setStagePosition(e.currentTarget.position())}
-            onWheel={onWheelHandler}
-            scaleX={scale}
-            scaleY={scale}
-          >
-            <Layer listening={false}>{grid}</Layer>
-            <StageContext.Provider value={value}>
-              <Layer>
-                <LineObject
-                  type='WALL'
-                  color='#4c4c4c'
-                  width={wallWidth}
-                  onDblClick={onDblClickHandler}
-                />
-                <LineObject
-                  type='WINDOW'
-                  opacity={0.9}
-                  color='white'
-                  width={wallWidth / 3}
-                  onDblClick={onDblClickHandler}
-                />
-                <LineObject
-                  type='DOOR'
-                  color='#d4d4d4'
-                  width={wallWidth / 1.5}
-                  onDblClick={onDblClickHandler}
-                />
-                <RectObject
-                  type='STAIRS'
-                  width={stairsWidth}
-                  height={stairsHeight}
-                  fillPatternImage={stairsFill}
-                  onDblClick={onDblClickHandler}
-                  onDragEnd={onDragEndHandler}
-                />
-                <TextObject
-                  type='TEXT'
-                  fontSize={20}
-                  align='left'
-                  width={100}
-                  onDragEnd={onDragEndHandler}
-                  onClick={onClickTextHandler}
-                  onDblClick={onDblClickHandler}
-                />
-                {/* <TextObject type='WALL' fontSize={10} wallWidth={wallWidth} /> */}
-              </Layer>
-            </StageContext.Provider>
-          </Stage>
-        )}
-      </StageContext.Consumer>
+      <Stage
+        onContextMenu={e => e.evt.preventDefault()}
+        x={stagePosition.x}
+        y={stagePosition.y}
+        visible={isStageVisable}
+        width={stageWidth}
+        height={stageHeight}
+        onMouseDown={onMouseDownHandler}
+        onMouseMove={onMouseMoveHandler}
+        onMouseUp={onMouseUpHandler}
+        style={{ backgroundColor: '#f2eee5' }}
+        draggable={action === 'SELECT' ? true : false}
+        onDragEnd={e => setStagePosition(e.currentTarget.position())}
+        onWheel={onWheelHandler}
+        scaleX={scale}
+        scaleY={scale}
+      >
+        <Layer listening={false}>{grid}</Layer>
+        <Layer>
+          <LineObject
+            objects={objects}
+            type='WALL'
+            color='#4c4c4c'
+            width={wallWidth}
+            onDblClick={onDblClickHandler}
+          />
+          <LineObject
+            objects={objects}
+            type='WINDOW'
+            opacity={0.9}
+            color='white'
+            width={wallWidth / 3}
+            onDblClick={onDblClickHandler}
+          />
+          <LineObject
+            objects={objects}
+            type='DOOR'
+            color='#d4d4d4'
+            width={wallWidth / 1.5}
+            onDblClick={onDblClickHandler}
+          />
+          <RectObject
+            objects={objects}
+            type='STAIRS'
+            width={stairsWidth}
+            height={stairsHeight}
+            fillPatternImage={stairsFill}
+            onDblClick={onDblClickHandler}
+            onDragEnd={onDragEndHandler}
+          />
+          <TextObject
+            objects={objects}
+            type='TEXT'
+            fontSize={20}
+            align='left'
+            width={100}
+            onDragEnd={onDragEndHandler}
+            onClick={onClickTextHandler}
+            onDblClick={onDblClickHandler}
+          />
+          {/* <TextObject type='WALL' fontSize={10} wallWidth={wallWidth} /> */}
+        </Layer>
+      </Stage>
+      )
       {objects.map(
         (object, i) =>
           object.type === 'TEXT' && (

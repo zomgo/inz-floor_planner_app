@@ -1,12 +1,6 @@
-import React from 'react';
-import { useContext } from 'react';
-import StageContext from '../store/stage-context';
 import { Rect } from 'react-konva';
 const RectObject = props => {
-  const stageContext = useContext(StageContext);
-  const { objects } = stageContext;
-
-  return objects.map(
+  return props.objects.map(
     (object, i) =>
       object.type === props.type && (
         <Rect

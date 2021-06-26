@@ -25,7 +25,6 @@ const Header = () => {
   const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
   const [isClearConfirmationModalOpen, setIsClearConfirmationModalOpen] =
     useState(false);
-
   const saveStateHandler = async () => {
     setIsSaveModalOpen(true);
     setIsStageVisable(false);
