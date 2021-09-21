@@ -1,10 +1,21 @@
-Bachelor's degree final project
+## Bachelor's degree final project
 
-Install dependencies
+Application made with React and Konva library that allows user to create floor plans.
+
+Install dependencies:
+
+```
 npm install
+```
 
 run server and app
+
+```
 npm run dev
+```
 
 make prod build
+
+```
 npm run build
+```
