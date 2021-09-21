@@ -29,7 +29,7 @@ const LoadModal = props => {
       );
       setObjects(res.data.objects);
       setHistory([res.data.objects]);
-      setHistoryPosition(0);
+      setHistoryPosition(-1);
       props.onCancel();
     } catch (err) {
       setIsIdValid(false);

@@ -20,16 +20,16 @@ const gridSize = 50;
 const stageWidth = 2000;
 const stageHeight = 2000;
 const onMouseDownSnapDistance = 30;
-const wallWidth = 18;
+const wallWidth = 10;
 const zoomScaleBy = 1.02;
 const zoomLimitUp = 2;
 const zoomLimitDown = 0.5;
-const windowWidth = 114;
+const windowWidth = 116;
 const doorWidth = 80;
-const wallSnapDistance = 30;
+const wallSnapDistance = 10;
 const wallSnapDegree = 10;
 const stairsWidth = 80;
-const stairsHeight = 160;
+const stairsHeight = 150;
 
 const MyStage = () => {
   const stageContext = useContext(StageContext);
@@ -141,13 +141,17 @@ const MyStage = () => {
         },
       ]);
     }
-    if (action === 'WINDOW') {
+    if (action === 'WINDOW' || action === 'DOOR') {
       setObjects([
         ...objects,
         {
-          startPointX: Math.round(pointerPosition.x) - windowWidth / 2,
+          startPointX:
+            Math.round(pointerPosition.x) -
+            (action === 'WINDOW' ? windowWidth / 4 : doorWidth / 4),
           startPointY: Math.round(pointerPosition.y),
-          endPointX: Math.round(pointerPosition.x) + windowWidth / 2,
+          endPointX:
+            Math.round(pointerPosition.x) +
+            (action === 'WINDOW' ? windowWidth / 4 : doorWidth / 4),
           endPointY: Math.round(pointerPosition.y),
           type: action,
           listening: false,
@@ -155,20 +159,20 @@ const MyStage = () => {
         },
       ]);
     }
-    if (action === 'DOOR') {
-      setObjects([
-        ...objects,
-        {
-          startPointX: Math.round(pointerPosition.x) - doorWidth / 2,
-          startPointY: Math.round(pointerPosition.y),
-          endPointX: Math.round(pointerPosition.x) + doorWidth / 2,
-          endPointY: Math.round(pointerPosition.y),
-          type: action,
-          listening: false,
-          index: uuidv4(),
-        },
-      ]);
-    }
+    // if (action === 'DOOR') {
+    //   setObjects([
+    //     ...objects,
+    //     {
+    //       startPointX: Math.round(pointerPosition.x) - doorWidth / 2,
+    //       startPointY: Math.round(pointerPosition.y),
+    //       endPointX: Math.round(pointerPosition.x) + doorWidth / 2,
+    //       endPointY: Math.round(pointerPosition.y),
+    //       type: action,
+    //       listening: false,
+    //       index: uuidv4(),
+    //     },
+    //   ]);
+    // }
     if (action === 'TEXT') {
       setObjects([
         ...objects,
@@ -257,11 +261,11 @@ const MyStage = () => {
       }
       currentObject.endPointX =
         Math.round(point.x) +
-        (action === 'WINDOW' ? windowWidth / 2 : doorWidth / 2);
+        (action === 'WINDOW' ? windowWidth / 4 : doorWidth / 4);
       currentObject.endPointY = Math.round(point.y);
       currentObject.startPointX =
         Math.round(point.x) -
-        (action === 'WINDOW' ? windowWidth / 2 : doorWidth / 2);
+        (action === 'WINDOW' ? windowWidth / 4 : doorWidth / 4);
       currentObject.startPointY = Math.round(point.y);
 
       currentObject.endPointY = closestEndPoint.y;
@@ -280,9 +284,9 @@ const MyStage = () => {
         currentObject.startPointX = closestEndPoint.x;
         currentObject.endPointX = closestEndPoint.x;
         currentObject.startPointY =
-          point.y + (action === 'WINDOW' ? windowWidth / 2 : doorWidth / 2);
+          point.y + (action === 'WINDOW' ? windowWidth / 4 : doorWidth / 4);
         currentObject.endPointY =
-          point.y - (action === 'WINDOW' ? windowWidth / 2 : doorWidth / 2);
+          point.y - (action === 'WINDOW' ? windowWidth / 4 : doorWidth / 4);
       }
       updateObjectsState(currentObject);
     }
@@ -431,30 +435,6 @@ const MyStage = () => {
       setObjects(state);
     }
   }
-  const test = (
-    <Stage
-      onMouseDown={onMouseDownHandler}
-      onMouseMove={onMouseMoveHandler}
-      onMouseUp={onMouseUpHandler}
-      //pozostałe atrybuty sceny
-    >
-      <Layer listening={false}>{grid}</Layer>
-      <Layer>
-        <LineObject
-          objects={objects}
-          type='WALL'
-          color='#4c4c4c'
-          width={wallWidth}
-          onDblClick={onDblClickHandler}
-          onWheel={onWheelHandler}
-          scaleX={scale}
-          scaleY={scale}
-        />
-        {/* pozostałe obiekty */}
-      </Layer>
-    </Stage>
-  );
-
   return (
     <div>
       <Stage
@@ -512,12 +492,17 @@ const MyStage = () => {
             type='TEXT'
             fontSize={20}
             align='left'
-            width={100}
+            width={300}
             onDragEnd={onDragEndHandler}
             onClick={onClickTextHandler}
             onDblClick={onDblClickHandler}
           />
-          {/* <TextObject type='WALL' fontSize={10} wallWidth={wallWidth} /> */}
+          {/* <TextObject
+            objects={objects}
+            type='WALL'
+            fontSize={10}
+            wallWidth={wallWidth}
+          /> */}
         </Layer>
       </Stage>
       )

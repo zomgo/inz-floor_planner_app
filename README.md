@@ -1,3 +1,5 @@
+Bachelor's degree final project
+
 Install dependencies
 npm install
 

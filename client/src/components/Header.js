@@ -74,8 +74,8 @@ const Header = () => {
   };
 
   const undoHandler = () => {
-    if (historyPosition > history.length) {
-      setObjects(history[0]);
+    if (historyPosition >= history.length) {
+      setObjects(history[history.length - 1]);
     }
     if (historyPosition <= 0) {
       setObjects([]);
@@ -138,7 +138,7 @@ const Header = () => {
       {isClearConfirmationModalOpen && (
         <Modal
           confirmHandler={clearStateHandler}
-          text='Jesteś pewien ?'
+          text='Stworzyć nowy projekt ?'
           cancelHandler={closeModalHandler}
         />
       )}
